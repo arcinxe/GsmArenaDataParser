@@ -54,6 +54,12 @@ namespace ArktiPhones
 
         [JsonProperty("weightInGrams", NullValueHandling = NullValueHandling.Ignore)]
         public double WeightInGrams { get; set; }
+        
+        [JsonProperty("batteryInMiliAh", NullValueHandling = NullValueHandling.Ignore)]
+        public double BatteryInMiliAh { get; set; }
+
+        [JsonProperty("operatingSystem", NullValueHandling = NullValueHandling.Ignore)]
+        public string OperatingSystem { get; set; }
 
     }
     public partial class Detail
