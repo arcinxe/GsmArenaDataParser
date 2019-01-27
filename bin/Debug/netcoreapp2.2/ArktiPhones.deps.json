@@ -1,13 +1,14 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "f0e24a811853b22fdadd4fbad9de13fc06519b79"
+    "signature": "7208f5c14944a47a51d35056fee7a943d79f0f26"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.2": {
       "ArktiPhones/1.0.0": {
         "dependencies": {
+          "CsvHelper": "12.1.1",
           "Microsoft.EntityFrameworkCore": "2.2.1",
           "Newtonsoft.Json": "12.0.1"
         },
@@ -15,6 +16,19 @@
           "ArktiPhones.dll": {}
         }
       },
+      "CsvHelper/12.1.1": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.4.0",
+          "System.Reflection.TypeExtensions": "4.4.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/CsvHelper.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.0.0"
+          }
+        }
+      },
+      "Microsoft.CSharp/4.4.0": {},
       "Microsoft.EntityFrameworkCore/2.2.1": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Abstractions": "2.2.1",
@@ -252,7 +266,7 @@
           "System.Reflection.Emit.Lightweight": "4.0.1",
           "System.Reflection.Extensions": "4.0.1",
           "System.Reflection.Primitives": "4.0.1",
-          "System.Reflection.TypeExtensions": "4.1.0",
+          "System.Reflection.TypeExtensions": "4.4.0",
           "System.Resources.ResourceManager": "4.0.1",
           "System.Runtime": "4.1.0",
           "System.Runtime.Extensions": "4.1.0",
@@ -323,12 +337,7 @@
           "System.Runtime": "4.1.0"
         }
       },
-      "System.Reflection.TypeExtensions/4.1.0": {
-        "dependencies": {
-          "System.Reflection": "4.1.0",
-          "System.Runtime": "4.1.0"
-        }
-      },
+      "System.Reflection.TypeExtensions/4.4.0": {},
       "System.Resources.ResourceManager/4.0.1": {
         "dependencies": {
           "System.Globalization": "4.0.11",
@@ -373,6 +382,20 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "CsvHelper/12.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-M8ns/FJk1Tt1+XmqriSfvr7dgp6xpyr9ZAMCgofxZvAbfPirn9pD78gB3Ue3GJG876ktYZU1vRxDi42QHOA7ag==",
+      "path": "csvhelper/12.1.1",
+      "hashPath": "csvhelper.12.1.1.nupkg.sha512"
+    },
+    "Microsoft.CSharp/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Mg7IqHdgGsyeXSApz85limYBHCUk4dQF4EPnSqcIfFiFA2C6bH4jdtYTsLeYnRN03BkPlNHXtbwlzGn8ASq8LA==",
+      "path": "microsoft.csharp/4.4.0",
+      "hashPath": "microsoft.csharp.4.4.0.nupkg.sha512"
     },
     "Microsoft.EntityFrameworkCore/2.2.1": {
       "type": "package",
@@ -619,12 +642,12 @@
       "path": "system.reflection.primitives/4.0.1",
       "hashPath": "system.reflection.primitives.4.0.1.nupkg.sha512"
     },
-    "System.Reflection.TypeExtensions/4.1.0": {
+    "System.Reflection.TypeExtensions/4.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-tsQ/ptQ3H5FYfON8lL4MxRk/8kFyE0A+tGPXmVP967cT/gzLHYxIejIYSxp4JmIeFHVP78g/F2FE1mUUTbDtrg==",
-      "path": "system.reflection.typeextensions/4.1.0",
-      "hashPath": "system.reflection.typeextensions.4.1.0.nupkg.sha512"
+      "sha512": "sha512-BWYdrACMy1Sbq7Kh1oISS+2qKX1dHhXNpRByG3c6M9i2fhU9BZqO3nFYIabmbZuQwd7svR5zfxNHgmgv2XkkIg==",
+      "path": "system.reflection.typeextensions/4.4.0",
+      "hashPath": "system.reflection.typeextensions.4.4.0.nupkg.sha512"
     },
     "System.Resources.ResourceManager/4.0.1": {
       "type": "package",

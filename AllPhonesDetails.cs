@@ -39,8 +39,23 @@ namespace ArktiPhones
 
         [JsonProperty("detail", NullValueHandling = NullValueHandling.Ignore)]
         public Detail Detail { get; set; }
-    }
 
+        [JsonProperty("auxiliary", NullValueHandling = NullValueHandling.Ignore)]
+        public Auxiliary Auxiliary { get; set; }
+        
+    }
+    public partial class Auxiliary
+    {
+        [JsonProperty("releaseYear", NullValueHandling = NullValueHandling.Ignore)]
+        public int ReleaseYear { get; set; }
+
+        [JsonProperty("screenDiameterInInches", NullValueHandling = NullValueHandling.Ignore)]
+        public double ScreenDiameterInInches { get; set; }
+
+        [JsonProperty("weightInGrams", NullValueHandling = NullValueHandling.Ignore)]
+        public double WeightInGrams { get; set; }
+
+    }
     public partial class Detail
     {
         [JsonProperty("battery", NullValueHandling = NullValueHandling.Ignore)]
@@ -312,7 +327,7 @@ namespace ArktiPhones
     public partial class SelfieCamera
     {
         [JsonProperty("single", NullValueHandling = NullValueHandling.Ignore)]
-         [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public List<string> Single { get; set; }
 
         [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
