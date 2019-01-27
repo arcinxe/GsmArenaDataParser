@@ -29,7 +29,7 @@ namespace ArktiPhones
         public string DeviceName { get; set; }
 
         [JsonProperty("device_type", NullValueHandling = NullValueHandling.Ignore)]
-        public DeviceType? DeviceType { get; set; }
+        public string DeviceType { get; set; }
 
         [JsonProperty("image_url", NullValueHandling = NullValueHandling.Ignore)]
         public Uri ImageUrl { get; set; }
@@ -239,8 +239,10 @@ namespace ArktiPhones
         [JsonProperty("features", NullValueHandling = NullValueHandling.Ignore)]
         public string Features { get; set; }
 
-        // [JsonProperty("dual", NullValueHandling = NullValueHandling.Ignore)]
-        // public DualUnion? Dual { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+
+        [JsonProperty("dual", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Dual { get; set; }
 
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
         public string Empty { get; set; }
