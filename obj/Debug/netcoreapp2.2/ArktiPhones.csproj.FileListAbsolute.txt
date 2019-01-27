@@ -1,0 +1,11 @@
+/home/arcin/Documents/ArktiPhones/bin/Debug/netcoreapp2.2/ArktiPhones.deps.json
+/home/arcin/Documents/ArktiPhones/bin/Debug/netcoreapp2.2/ArktiPhones.runtimeconfig.json
+/home/arcin/Documents/ArktiPhones/bin/Debug/netcoreapp2.2/ArktiPhones.runtimeconfig.dev.json
+/home/arcin/Documents/ArktiPhones/bin/Debug/netcoreapp2.2/ArktiPhones.dll
+/home/arcin/Documents/ArktiPhones/bin/Debug/netcoreapp2.2/ArktiPhones.pdb
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.csprojAssemblyReference.cache
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.csproj.CoreCompileInputs.cache
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.AssemblyInfoInputs.cache
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.AssemblyInfo.cs
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.dll
+/home/arcin/Documents/ArktiPhones/obj/Debug/netcoreapp2.2/ArktiPhones.pdb
