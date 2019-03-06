@@ -7,32 +7,32 @@
   {
     "Year": 2018,
     "Jack": 324,
-    "NoJack": 60
+    "NoJack": 48
   },
   {
     "Year": 2017,
     "Jack": 408,
-    "NoJack": 36
+    "NoJack": 25
   },
   {
     "Year": 2016,
     "Jack": 528,
-    "NoJack": 31
+    "NoJack": 14
   },
   {
     "Year": 2015,
     "Jack": 667,
-    "NoJack": 20
+    "NoJack": 7
   },
   {
     "Year": 2014,
     "Jack": 772,
-    "NoJack": 24
+    "NoJack": 17
   },
   {
     "Year": 2013,
     "Jack": 604,
-    "NoJack": 40
+    "NoJack": 38
   },
   {
     "Year": 2012,
@@ -112,6 +112,6 @@
   {
     "Year": -1,
     "Jack": 31,
-    "NoJack": 128
+    "NoJack": 127
   }
 ]

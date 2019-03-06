@@ -61,6 +61,12 @@ namespace ArktiPhones
         [JsonProperty("operatingSystem", NullValueHandling = NullValueHandling.Ignore)]
         public string OperatingSystem { get; set; }
 
+         [JsonProperty("priceInEuro", NullValueHandling = NullValueHandling.Ignore)]
+        public double PriceInEuro { get; set; }
+
+         [JsonProperty("colors", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Colors { get; set; }
+
     }
     public partial class Detail
     {

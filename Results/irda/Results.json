@@ -7,32 +7,32 @@
   {
     "Year": 2018,
     "Irda": 24,
-    "NoIrda": 360
+    "NoIrda": 348
   },
   {
     "Year": 2017,
     "Irda": 38,
-    "NoIrda": 406
+    "NoIrda": 395
   },
   {
     "Year": 2016,
     "Irda": 47,
-    "NoIrda": 512
+    "NoIrda": 495
   },
   {
     "Year": 2015,
     "Irda": 34,
-    "NoIrda": 653
+    "NoIrda": 640
   },
   {
     "Year": 2014,
-    "Irda": 44,
-    "NoIrda": 752
+    "Irda": 42,
+    "NoIrda": 747
   },
   {
     "Year": 2013,
     "Irda": 30,
-    "NoIrda": 614
+    "NoIrda": 612
   },
   {
     "Year": 2012,
@@ -112,6 +112,6 @@
   {
     "Year": -1,
     "Irda": 39,
-    "NoIrda": 120
+    "NoIrda": 119
   }
 ]

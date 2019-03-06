@@ -1,0 +1,373 @@
+[
+  {
+    "Brand": "ZTE",
+    "MostExpensive": {
+      "DeviceName": "ZTE Axon 9 Pro",
+      "PriceInEuro": 650.0
+    }
+  },
+  {
+    "Brand": "YU",
+    "MostExpensive": {
+      "DeviceName": "YU Yureka 2",
+      "PriceInEuro": 144.0
+    }
+  },
+  {
+    "Brand": "Yota",
+    "MostExpensive": {
+      "DeviceName": "Yota YotaPhone 3",
+      "PriceInEuro": 310.0
+    }
+  },
+  {
+    "Brand": "Yezz",
+    "MostExpensive": {
+      "DeviceName": "Yezz Epic T",
+      "PriceInEuro": 250.0
+    }
+  },
+  {
+    "Brand": "XOLO",
+    "MostExpensive": {
+      "DeviceName": "XOLO Era 2X",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "Xiaomi",
+    "MostExpensive": {
+      "DeviceName": "Xiaomi Mi Mix 3",
+      "PriceInEuro": 560.0
+    }
+  },
+  {
+    "Brand": "Wiko",
+    "MostExpensive": {
+      "DeviceName": "Wiko View2 Pro",
+      "PriceInEuro": 300.0
+    }
+  },
+  {
+    "Brand": "Vodafone",
+    "MostExpensive": {
+      "DeviceName": "Vodafone Smart V8",
+      "PriceInEuro": 230.0
+    }
+  },
+  {
+    "Brand": "vivo",
+    "MostExpensive": {
+      "DeviceName": "vivo NEX Dual Display",
+      "PriceInEuro": 700.0
+    }
+  },
+  {
+    "Brand": "verykool",
+    "MostExpensive": {
+      "DeviceName": "verykool s5702 Royale Quattro",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "TECNO",
+    "MostExpensive": {
+      "DeviceName": "TECNO Camon 11 Pro",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "T-Mobile",
+    "MostExpensive": {
+      "DeviceName": "T-Mobile Revvl",
+      "PriceInEuro": 109.5
+    }
+  },
+  {
+    "Brand": "Sony",
+    "MostExpensive": {
+      "DeviceName": "Sony Xperia XZ2 Premium",
+      "PriceInEuro": 900.0
+    }
+  },
+  {
+    "Brand": "Sonim",
+    "MostExpensive": {
+      "DeviceName": "Sonim XP8",
+      "PriceInEuro": 700.0
+    }
+  },
+  {
+    "Brand": "Sharp",
+    "MostExpensive": {
+      "DeviceName": "Sharp Aquos Zero",
+      "PriceInEuro": 600.0
+    }
+  },
+  {
+    "Brand": "Samsung",
+    "MostExpensive": {
+      "DeviceName": "Samsung Galaxy Note9",
+      "PriceInEuro": 750.0
+    }
+  },
+  {
+    "Brand": "Realme",
+    "MostExpensive": {
+      "DeviceName": "Realme 2 Pro",
+      "PriceInEuro": 210.0
+    }
+  },
+  {
+    "Brand": "Razer",
+    "MostExpensive": {
+      "DeviceName": "Razer Phone 2",
+      "PriceInEuro": 850.0
+    }
+  },
+  {
+    "Brand": "QMobile",
+    "MostExpensive": {
+      "DeviceName": "QMobile M6",
+      "PriceInEuro": 354.0
+    }
+  },
+  {
+    "Brand": "Plum",
+    "MostExpensive": {
+      "DeviceName": "Plum Tag 2 3G",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "Panasonic",
+    "MostExpensive": {
+      "DeviceName": "Panasonic Eluga X1 Pro",
+      "PriceInEuro": 350.0
+    }
+  },
+  {
+    "Brand": "Palm",
+    "MostExpensive": {
+      "DeviceName": "Palm Palm",
+      "PriceInEuro": 300.0
+    }
+  },
+  {
+    "Brand": "Oppo",
+    "MostExpensive": {
+      "DeviceName": "Oppo Find X Lamborghini",
+      "PriceInEuro": 1700.0
+    }
+  },
+  {
+    "Brand": "OnePlus",
+    "MostExpensive": {
+      "DeviceName": "OnePlus 6T McLaren",
+      "PriceInEuro": 700.0
+    }
+  },
+  {
+    "Brand": "Nokia",
+    "MostExpensive": {
+      "DeviceName": "Nokia 8 Sirocco",
+      "PriceInEuro": 550.0
+    }
+  },
+  {
+    "Brand": "Motorola",
+    "MostExpensive": {
+      "DeviceName": "Motorola Moto Z3",
+      "PriceInEuro": 420.48
+    }
+  },
+  {
+    "Brand": "Micromax",
+    "MostExpensive": {
+      "DeviceName": "Micromax Dual 5",
+      "PriceInEuro": 360.0
+    }
+  },
+  {
+    "Brand": "Meizu",
+    "MostExpensive": {
+      "DeviceName": "Meizu Pro 7 Plus",
+      "PriceInEuro": 500.0
+    }
+  },
+  {
+    "Brand": "Maxwest",
+    "MostExpensive": {
+      "DeviceName": "Maxwest Nitro 55M",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "LG",
+    "MostExpensive": {
+      "DeviceName": "LG V40 ThinQ",
+      "PriceInEuro": 800.0
+    }
+  },
+  {
+    "Brand": "Lenovo",
+    "MostExpensive": {
+      "DeviceName": "Lenovo ZUK Edge",
+      "PriceInEuro": 450.0
+    }
+  },
+  {
+    "Brand": "LeEco",
+    "MostExpensive": {
+      "DeviceName": "LeEco Le Pro 3 AI Edition",
+      "PriceInEuro": 280.0
+    }
+  },
+  {
+    "Brand": "Lava",
+    "MostExpensive": {
+      "DeviceName": "Lava Z25",
+      "PriceInEuro": 250.0
+    }
+  },
+  {
+    "Brand": "Kyocera",
+    "MostExpensive": {
+      "DeviceName": "Kyocera DuraForce Pro 2",
+      "PriceInEuro": 388.944
+    }
+  },
+  {
+    "Brand": "Infinix",
+    "MostExpensive": {
+      "DeviceName": "Infinix Smart 2 HD",
+      "PriceInEuro": 0.0
+    }
+  },
+  {
+    "Brand": "Huawei",
+    "MostExpensive": {
+      "DeviceName": "Huawei Mate 20 RS Porsche Design",
+      "PriceInEuro": 1600.0
+    }
+  },
+  {
+    "Brand": "HTC",
+    "MostExpensive": {
+      "DeviceName": "HTC U11+",
+      "PriceInEuro": 660.0
+    }
+  },
+  {
+    "Brand": "Honor",
+    "MostExpensive": {
+      "DeviceName": "Honor View 20",
+      "PriceInEuro": 570.0
+    }
+  },
+  {
+    "Brand": "Haier",
+    "MostExpensive": {
+      "DeviceName": "Haier L7",
+      "PriceInEuro": 120.0
+    }
+  },
+  {
+    "Brand": "Google",
+    "MostExpensive": {
+      "DeviceName": "Google Pixel 3 XL",
+      "PriceInEuro": 960.0
+    }
+  },
+  {
+    "Brand": "Gionee",
+    "MostExpensive": {
+      "DeviceName": "Gionee M7 Plus",
+      "PriceInEuro": 670.0
+    }
+  },
+  {
+    "Brand": "Energizer",
+    "MostExpensive": {
+      "DeviceName": "Energizer Hardcase H550S",
+      "PriceInEuro": 450.0
+    }
+  },
+  {
+    "Brand": "Coolpad",
+    "MostExpensive": {
+      "DeviceName": "Coolpad Cool S1",
+      "PriceInEuro": 420.0
+    }
+  },
+  {
+    "Brand": "Cat",
+    "MostExpensive": {
+      "DeviceName": "Cat S61",
+      "PriceInEuro": 900.0
+    }
+  },
+  {
+    "Brand": "BQ",
+    "MostExpensive": {
+      "DeviceName": "BQ Aquaris X2 Pro",
+      "PriceInEuro": 390.0
+    }
+  },
+  {
+    "Brand": "BLU",
+    "MostExpensive": {
+      "DeviceName": "BLU Vivo XI+",
+      "PriceInEuro": 289.08
+    }
+  },
+  {
+    "Brand": "Blackview",
+    "MostExpensive": {
+      "DeviceName": "Blackview P6000",
+      "PriceInEuro": 250.0
+    }
+  },
+  {
+    "Brand": "BlackBerry",
+    "MostExpensive": {
+      "DeviceName": "BlackBerry KEY2",
+      "PriceInEuro": 500.0
+    }
+  },
+  {
+    "Brand": "Asus",
+    "MostExpensive": {
+      "DeviceName": "Asus ROG Phone",
+      "PriceInEuro": 950.0
+    }
+  },
+  {
+    "Brand": "Archos",
+    "MostExpensive": {
+      "DeviceName": "Archos Diamond Alpha +",
+      "PriceInEuro": 400.0
+    }
+  },
+  {
+    "Brand": "Apple",
+    "MostExpensive": {
+      "DeviceName": "Apple iPhone XS Max",
+      "PriceInEuro": 1250.0
+    }
+  },
+  {
+    "Brand": "Allview",
+    "MostExpensive": {
+      "DeviceName": "Allview X4 Soul Infinity Plus",
+      "PriceInEuro": 450.0
+    }
+  },
+  {
+    "Brand": "alcatel",
+    "MostExpensive": {
+      "DeviceName": "alcatel A7 XL",
+      "PriceInEuro": 260.0
+    }
+  }
+]

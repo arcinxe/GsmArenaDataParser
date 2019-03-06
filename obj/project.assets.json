@@ -3147,7 +3147,8 @@
     ]
   },
   "packageFolders": {
-    "/home/arcin/.nuget/packages/": {}
+    "/home/arcin/.nuget/packages/": {},
+    "/opt/dotnet/sdk/NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
@@ -3158,6 +3159,9 @@
       "packagesPath": "/home/arcin/.nuget/packages/",
       "outputPath": "/home/arcin/Documents/ArktiPhones/obj/",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "/opt/dotnet/sdk/NuGetFallbackFolder"
+      ],
       "configFilePaths": [
         "/home/arcin/.nuget/NuGet/NuGet.Config"
       ],
