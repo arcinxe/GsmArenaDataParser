@@ -12,12 +12,15 @@ namespace ArktiPhones
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("SHITSTORM STARTED");
+            System.Console.WriteLine("SHITSTORM STARTED!");
+            var startTime = DateTime.Now;
             // Sandbox();
             // return;
             var file = System.IO.File.ReadAllText("AllPhonesDetails.json");
-            var phones = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data);
-            phones = ExtractValues(phones);
+            var phoneId = 1;
+            var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
+            inputPhonesProcessed.ForEach(p => p.PhoneId = phoneId++);
+            // phones = ExtractValues(phones);
             // var query = phones.Where(p => p.Overview.GeneralInfo.Launched.Contains("Released")).Select(p => p.Overview.GeneralInfo.Launched).GroupBy(p => p).Distinct();
             //     var query = phones
             //     .OrderByDescending(p => p.Auxiliary.ReleaseYear)
@@ -29,7 +32,7 @@ namespace ArktiPhones
             //        NoJack = p.Where(ph => ph.Detail.Sound.The3_5MmJack != "Yes").Select(ph => ph.Detail.Sound).Distinct().Count()
             //    });
 
-            var query = phones.Where(p => p.Auxiliary.ScreenDiameterInInches > 2.9);
+            // var query = phones.Where(p => p.Auxiliary.ScreenDiameterInInches > 2.9);
 
 
             //      var query = phones
@@ -42,16 +45,16 @@ namespace ArktiPhones
             //        NoIrda = p.Where(ph => ph.Detail.Comms.InfraredPort != "Yes").Select(ph => ph.Detail.Comms).Distinct().Count()
             //    });
 
-    //  var query = phones
-    //             .OrderByDescending(p => p.Auxiliary.ReleaseYear)
-    //             .GroupBy(p => p.Auxiliary.ReleaseYear)
-    //             .Select(p => new
-    //            {
-    //                Year = p.Key,
-    //                single = p.Where(ph => ph.Detail?.MainCamera?.Single != null).Count(),
-    //                dual = p.Where(ph => ph.Detail?.MainCamera?.Dual != null).Count(),
-    //                triple = p.Where(ph => ph.Detail?.MainCamera?.Triple != null).Count()
-    //            });
+            //  var query = phones
+            //             .OrderByDescending(p => p.Auxiliary.ReleaseYear)
+            //             .GroupBy(p => p.Auxiliary.ReleaseYear)
+            //             .Select(p => new
+            //            {
+            //                Year = p.Key,
+            //                single = p.Where(ph => ph.Detail?.MainCamera?.Single != null).Count(),
+            //                dual = p.Where(ph => ph.Detail?.MainCamera?.Dual != null).Count(),
+            //                triple = p.Where(ph => ph.Detail?.MainCamera?.Triple != null).Count()
+            //            });
 
 
             // var query = phones
@@ -95,13 +98,13 @@ namespace ArktiPhones
             //     Count = p.Select(j => j.Detail.Sound).Distinct().Count()
             // });
 
-        //     var query = phones
-        //   .GroupBy(j => j.Detail.Misc.Price)
-        //   .Select(p => new
-        //   {
-        //       Jack = p.Key,
-        //       Count = p.Select(j => j.Detail.Misc.Price).Distinct().Count()
-        //   });
+            //     var query = phones
+            //   .GroupBy(j => j.Detail.Misc.Price)
+            //   .Select(p => new
+            //   {
+            //       Jack = p.Key,
+            //       Count = p.Select(j => j.Detail.Misc.Price).Distinct().Count()
+            //   });
 
             // var query = phones.Where(p => p.Detail.Comms.InfraredPort == "Yes" && p.Overview.GeneralInfo.Launched.Contains("2017")).Select(p => new {p.Brand, p.Overview.GeneralInfo});
             // var query = phones
@@ -115,61 +118,118 @@ namespace ArktiPhones
             // {
             //     csv.WriteRecords(query);
             // }
+            //   var query = phones
+            //                 .OrderByDescending(p => p.Auxiliary.ReleaseYear)
+            //                 .GroupBy(p => p.Auxiliary.ReleaseYear)
+            //                 .Select(p => new
+            //                {
+            //                    Irda = p.Where(ph => ph.Detail.Comms.InfraredPort == "Yes").Select(ph => ph.Detail.Comms).Distinct().Count(),
+            //                    NoIrda = p.Where(ph => ph.Detail.Comms.InfraredPort != "Yes").Select(ph => ph.Detail.Comms).Distinct().Count()
+            //                });
+            // var tempList = new List<List<string>>();
+            // for (int i = 0; i < 7; i++)
+            // {
+            //     tempList.Add(new List<string>());
+            // }
+            // var regex = new Regex(@"^(\d{4})?[,.; ]*(Q\d)?(\w+)?[,.; ]*(?:Released\s*)*(?:Exp. release )?(\d{4})?[,.; ]*(Q\d)?(\w+)? ?(\d+)?(?:st|nd|rd|th)?$", RegexOptions.IgnoreCase);
+            // foreach (var pho in inputPhonesProcessed)
+            // {
+            //     System.Console.WriteLine(pho.DeviceName);
+            //     // System.Console.WriteLine("Reached the hell!");
+            //     var match = regex.Match(pho.Detail.Launch.Announced);
+            //     // System.Console.WriteLine("Left the hell!");
+            //     for (int i = 1; i < 8; i++)
+            //     {
+            //         tempList[i - 1].Add(match.Groups[i].Value);
+            //     }
+            //     // break;
+            // }
+            // // tempList.ForEach(l => l.ToList().Distinct());
+            // var tempList2 = new List<List<string>>();
+            // foreach (var lis in tempList)
+            // {
+            //     tempList2.Add(lis.Distinct().OrderBy(l => l).ToList());
+            // }
+            // // System.Console.WriteLine("Reached the hell!");
+            // System.IO.File.WriteAllText("RegexResults.json", JsonConvert.SerializeObject(tempList2, Formatting.Indented));
+            // // System.Console.WriteLine("Left the hell!");
+            var remodeledPhones = inputPhonesProcessed
+                .Select(p => new ValuesExtractor(p).resultPhone);
+            var distinctValuesCount = remodeledPhones
+                .GroupBy(ph => ph.AnnouncedDate)
+                .Select(p => new
+                {
+                    Key = p.Key,
+                    Count =
+                    (from selectedPhone in p
+                     join originalPhone in inputPhonesProcessed on selectedPhone.PhoneId equals originalPhone.PhoneId
+                     select originalPhone.Detail.Launch.Announced).Count(),
+                    Values =
+                    (from selectedPhone in p
+                     join originalPhone in inputPhonesProcessed on selectedPhone.PhoneId equals originalPhone.PhoneId
+                     select originalPhone.Detail.Launch.Announced).Distinct()
+                })
+                .OrderByDescending(b => b.Key).ToList();
 
-            System.Console.WriteLine($"gud: {query.Count()}");
+            System.IO.File.WriteAllText("TestResult.json",
+                JsonConvert.SerializeObject(distinctValuesCount, Formatting.Indented));
+            System.IO.File.WriteAllText("DistinctResult.json",
+                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Overview.Battery.Technology).Distinct().OrderByDescending(v => v), Formatting.Indented));
+            System.IO.File.WriteAllText("FinalResults.json",
+                JsonConvert.SerializeObject(remodeledPhones, Formatting.Indented));
+            System.IO.File.WriteAllText("InputPhonesProcessed.json",
+                JsonConvert.SerializeObject(inputPhonesProcessed, Formatting.Indented));
+
+            System.Console.WriteLine($"gud: {inputPhonesProcessed.Count()} devices");
+            System.Console.WriteLine($"DONE IN: ~{(DateTime.Now - startTime).Milliseconds.ToString("##.##")}ms!");
         }
 
         public static IEnumerable<ArktiPhones.Data> ExtractValues(IEnumerable<ArktiPhones.Data> phones)
         {
-            phones = phones.Where(p => p.DeviceType == "Phone");
-            phones = phones.Where(p => !p.DeviceName.ToLower().Contains("watch") && !p.Overview.GeneralInfo.Os.ToLower().Contains("wear"));
-            phones = phones.Where(p => p.DeviceName != "Haier C300" && p.DeviceName != "BLU X Link" && p.DeviceName != "alcatel CareTime" && p.DeviceName != "Huawei Fit" && p.DeviceName != "Samsung Serenata");
-            // TODO: Remove smartwatches
-            foreach (var phone in phones)
-            {
-                phone.Auxiliary = new Auxiliary();
-                // Release year
-                phone.Auxiliary.ReleaseYear = phone.Overview.GeneralInfo.Launched
-                .Contains("Released ")
-                ? int.Parse(Regex.Replace(Regex.Replace(phone.Overview.GeneralInfo.Launched, "Q(1|2|3|4)", ""), "[^0-9+-]", "")
-                .Substring(0, 4)) : -1;
-                // Screen diameter
-                phone.Auxiliary.ScreenDiameterInInches = double.Parse(phone.Overview.Display.Size != null ? Regex.Replace(phone.Overview.Display.Size, "[^0-9.+-]", "") : "-1");
-                // Weight
-                double.TryParse(Regex.Replace(phone.Detail.Body.Weight.Split(' ').FirstOrDefault(), "[^0-9.+-]", ""), out var weight);
-                phone.Auxiliary.WeightInGrams = weight;
-                // OS
-                phone.Auxiliary.OperatingSystem = phone.Overview.GeneralInfo.Os.Split(',').FirstOrDefault()?.Split(';').FirstOrDefault().Split('/').FirstOrDefault();
-                // Battery
-                phone.Auxiliary.BatteryInMiliAh = phone.Overview.Battery?.Capacity != null ? double.Parse(Regex.Replace(phone.Overview.Battery?.Capacity, "[^0-9+-]", "")) : double.NaN;
-                // Price
-                if (phone.Detail.Misc.Price != null)
-                {
+            // phones = phones.Where(p => p.DeviceType == "Phone");
+            // phones = phones.Where(p => !p.DeviceName.ToLower().Contains("watch") && !p.Overview.GeneralInfo.Os.ToLower().Contains("wear"));
+            // phones = phones.Where(p => p.DeviceName != "Haier C300" && p.DeviceName != "BLU X Link" && p.DeviceName != "alcatel CareTime" && p.DeviceName != "Huawei Fit" && p.DeviceName != "Samsung Serenata");
+            // // TODO: Remove smartwatches
+            // foreach (var phone in phones)
+            // {
+            //    
+            //     // Screen diameter
+            //     phone.Auxiliary.ScreenDiameterInInches = double.Parse(phone.Overview.Display.Size != null ? Regex.Replace(phone.Overview.Display.Size, "[^0-9.+-]", "") : "-1");
+            //     // Weight
+            //     double.TryParse(Regex.Replace(phone.Detail.Body.Weight.Split(' ').FirstOrDefault(), "[^0-9.+-]", ""), out var weight);
+            //     phone.Auxiliary.WeightInGrams = weight;
+            //     // OS
+            //     phone.Auxiliary.OperatingSystem = phone.Overview.GeneralInfo.Os.Split(',').FirstOrDefault()?.Split(';').FirstOrDefault().Split('/').FirstOrDefault();
+            //     // Battery
+            //     phone.Auxiliary.BatteryInMiliAh = phone.Overview.Battery?.Capacity != null ? double.Parse(Regex.Replace(phone.Overview.Battery?.Capacity, "[^0-9+-]", "")) : double.NaN;
+            //     // Price
+            //     if (phone.Detail.Misc.Price != null)
+            //     {
 
-                    var currency = "EUR";
-                    currency = phone.Detail.Misc.Price.Split(' ').LastOrDefault();
-                    var price = Regex.Replace(phone.Detail.Misc.Price, "[^0-9+-]", "");
-                    var multiplier = 1.0;
-                    switch (currency)
-                    {
-                        case "EUR":
-                            break;
-                        case "USD":
-                            multiplier = 0.876;
-                            break;
-                        case "INR":
-                            multiplier = 0.012;
-                            break;
-                        default:
-                            price = "-1";
-                            break;
+            //         var currency = "EUR";
+            //         currency = phone.Detail.Misc.Price.Split(' ').LastOrDefault();
+            //         var price = Regex.Replace(phone.Detail.Misc.Price, "[^0-9+-]", "");
+            //         var multiplier = 1.0;
+            //         switch (currency)
+            //         {
+            //             case "EUR":
+            //                 break;
+            //             case "USD":
+            //                 multiplier = 0.876;
+            //                 break;
+            //             case "INR":
+            //                 multiplier = 0.012;
+            //                 break;
+            //             default:
+            //                 price = "-1";
+            //                 break;
 
-                    }
-                    phone.Auxiliary.PriceInEuro = double.Parse(price)*multiplier;
-                }
-                // Colors
-                phone.Auxiliary.Colors = phone.Detail.Misc.Colors.Split(", ").ToList();
-            }
+            //         }
+            //         phone.Auxiliary.PriceInEuro = double.Parse(price)*multiplier;
+            //     }
+            //     // Colors
+            //     phone.Auxiliary.Colors = phone.Detail.Misc.Colors.Split(", ").ToList();
+            // }
             return phones;
         }
         public static void Sandbox()

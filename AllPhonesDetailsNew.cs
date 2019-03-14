@@ -7,7 +7,7 @@ namespace ArktiPhones
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
-    public partial class Temperatures
+    public partial class AllPhonesDetails
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public Data Data { get; set; }
@@ -18,6 +18,7 @@ namespace ArktiPhones
 
     public partial class Data
     {
+        public int PhoneId { get; set; }
         [JsonProperty("brand", NullValueHandling = NullValueHandling.Ignore)]
         public string Brand { get; set; }
 
@@ -97,7 +98,8 @@ namespace ArktiPhones
         public string StandBy { get; set; }
 
         [JsonProperty("charging", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Charging { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Charging { get; set; }
 
         [JsonProperty("music_play", NullValueHandling = NullValueHandling.Ignore)]
         public string MusicPlay { get; set; }
@@ -106,7 +108,8 @@ namespace ArktiPhones
     public partial class Body
     {
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Empty { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Empty { get; set; }
 
         [JsonProperty("dimensions", NullValueHandling = NullValueHandling.Ignore)]
         public string Dimensions { get; set; }
@@ -169,7 +172,8 @@ namespace ArktiPhones
         public string Protection { get; set; }
 
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Empty { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Empty { get; set; }
     }
 
     public partial class Features
@@ -178,7 +182,8 @@ namespace ArktiPhones
         public string Sensors { get; set; }
 
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Empty { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Empty { get; set; }
 
         [JsonProperty("browser", NullValueHandling = NullValueHandling.Ignore)]
         public string Browser { get; set; }
@@ -214,7 +219,8 @@ namespace ArktiPhones
     public partial class MainCamera
     {
         [JsonProperty("single", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Single { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Single { get; set; }
 
         [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
         public string Video { get; set; }
@@ -223,7 +229,8 @@ namespace ArktiPhones
         public string Features { get; set; }
 
         [JsonProperty("dual", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Dual { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Dual { get; set; }
 
         [JsonProperty("triple", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Triple { get; set; }
@@ -253,7 +260,8 @@ namespace ArktiPhones
         public string Phonebook { get; set; }
 
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Empty { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Empty { get; set; }
     }
 
     public partial class Misc
@@ -265,10 +273,12 @@ namespace ArktiPhones
         public string Price { get; set; }
 
         [JsonProperty("sar_eu", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? SarEu { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> SarEu { get; set; }
 
         [JsonProperty("sar", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Sar { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Sar { get; set; }
     }
 
     public partial class Network
@@ -316,7 +326,8 @@ namespace ArktiPhones
     public partial class SelfieCamera
     {
         [JsonProperty("single", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Single { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Single { get; set; }
 
         [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
         public string Video { get; set; }
@@ -340,7 +351,8 @@ namespace ArktiPhones
         public string Loudspeaker { get; set; }
 
         [JsonProperty("", NullValueHandling = NullValueHandling.Ignore)]
-        public Charging? Empty { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        public List<string> Empty { get; set; }
 
         [JsonProperty("alert_types", NullValueHandling = NullValueHandling.Ignore)]
         public string AlertTypes { get; set; }

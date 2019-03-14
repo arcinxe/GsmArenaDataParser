@@ -1,11 +1,11 @@
 using System;
 
-class PhoneDetails
+public class PhoneDetails
 {
-    public Guid PhoneId { get; set; }
+    public int PhoneId { get; set; }
     public string Brand { get; set; }
     public string Name { get; set; }
-    public string BatteryCapacity { get; set; }
+    public int BatteryCapacity { get; set; }
     public string BatteryTechnology { get; set; }
     public string BatteryStandby { get; set; }
     public string BatteryTalk { get; set; }
@@ -23,7 +23,6 @@ class PhoneDetails
     public string DisplaySize { get; set; }
     public string DisplayType { get; set; }
     public string Sensors { get; set; }
-    public string Announced { get; set; }
     public string Status { get; set; }
     public string MemoryCard { get; set; }
     public string MemoryInternal { get; set; }
@@ -50,6 +49,9 @@ class PhoneDetails
     public string InfoDisplayResolution { get; set; }
     public string InfoCameraPhoto { get; set; }
     public string InfoCameraVideo { get; set; }
+    public DateTime AnnouncedDate { get; set; }
+    public DateTime ReleasedDate { get; set; }
+    public string  Test { get; set; }
 }
 
 class Camera
