@@ -16,7 +16,7 @@ namespace ArktiPhones
             var startTime = DateTime.Now;
             // Sandbox();
             // return;
-            var file = System.IO.File.ReadAllText("AllPhonesDetails.json");
+            var file = System.IO.File.ReadAllText(Path.Combine("Results", "AllPhonesDetails.json"));
             var phoneId = 1;
             var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
             inputPhonesProcessed.ForEach(p => p.PhoneId = phoneId++);
@@ -171,17 +171,17 @@ namespace ArktiPhones
                 })
                 .OrderByDescending(b => b.Key).ToList();
 
-            System.IO.File.WriteAllText("TestResult.json",
+            System.IO.File.WriteAllText(Path.Combine("Results", "TestResult.json"),
                 JsonConvert.SerializeObject(distinctValuesCount, Formatting.Indented));
-            System.IO.File.WriteAllText("DistinctResult.json",
-                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Overview.Battery.Technology).Distinct().OrderByDescending(v => v), Formatting.Indented));
-            System.IO.File.WriteAllText("FinalResults.json",
+            System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
+                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Overview.Display.Resolution).Distinct().OrderByDescending(v => v), Formatting.Indented));
+            System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
                 JsonConvert.SerializeObject(remodeledPhones, Formatting.Indented));
-            System.IO.File.WriteAllText("InputPhonesProcessed.json",
+            System.IO.File.WriteAllText(Path.Combine("Results", "InputPhonesProcessed.json"),
                 JsonConvert.SerializeObject(inputPhonesProcessed, Formatting.Indented));
 
             System.Console.WriteLine($"gud: {inputPhonesProcessed.Count()} devices");
-            System.Console.WriteLine($"DONE IN: ~{(DateTime.Now - startTime).Milliseconds.ToString("##.##")}ms!");
+            System.Console.WriteLine($"DONE IN: ~{(DateTime.Now - startTime).TotalMilliseconds.ToString("##")}ms!");
         }
 
         public static IEnumerable<ArktiPhones.Data> ExtractValues(IEnumerable<ArktiPhones.Data> phones)
@@ -234,28 +234,28 @@ namespace ArktiPhones
         }
         public static void Sandbox()
         {
-            var file = System.IO.File.ReadAllText("Colors.json");
-            var phones = JsonConvert.DeserializeObject<List<PhonesColorsModel>>(file);
-            foreach (var phone in phones)
-            {
-                var distinctColors = new List<string>();
-                foreach (var colors in phone.Colors)
-                {
-                    foreach (var color in colors)
-                    {
-                        distinctColors.Add(color);
-                    }
-                }
-                phone.DistinctColors = distinctColors.Distinct().ToList();
-            }
-            // phones = ;
-            var resultJson = JsonConvert.SerializeObject(phones.Select(p => new { p.Brand, p.DistinctColors.Count, p.DistinctColors }), Formatting.Indented);
-            System.IO.File.WriteAllText("ColorsResult.json", resultJson);
-            using (var writer = new StreamWriter("ColorsResult.csv"))
-            using (var csv = new CsvWriter(writer))
-            {
-                csv.WriteRecords(phones.Select(p => new { p.Brand, p.DistinctColors.Count, p.DistinctColors }));
-            }
+            // var file = System.IO.File.ReadAllText("Colors.json");
+            // var phones = JsonConvert.DeserializeObject<List<PhonesColorsModel>>(file);
+            // foreach (var phone in phones)
+            // {
+            //     var distinctColors = new List<string>();
+            //     foreach (var colors in phone.Colors)
+            //     {
+            //         foreach (var color in colors)
+            //         {
+            //             distinctColors.Add(color);
+            //         }
+            //     }
+            //     phone.DistinctColors = distinctColors.Distinct().ToList();
+            // }
+            // // phones = ;
+            // var resultJson = JsonConvert.SerializeObject(phones.Select(p => new { p.Brand, p.DistinctColors.Count, p.DistinctColors }), Formatting.Indented);
+            // System.IO.File.WriteAllText("ColorsResult.json", resultJson);
+            // using (var writer = new StreamWriter("ColorsResult.csv"))
+            // using (var csv = new CsvWriter(writer))
+            // {
+            //     csv.WriteRecords(phones.Select(p => new { p.Brand, p.DistinctColors.Count, p.DistinctColors }));
+            // }
         }
     }
 }

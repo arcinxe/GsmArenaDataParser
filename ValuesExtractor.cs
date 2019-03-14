@@ -22,18 +22,17 @@ namespace ArktiPhones
             resultPhone.Name = GetName();
             resultPhone.Brand = GetBrand();
             resultPhone.PhoneId = GetId();
+            resultPhone.BatteryTechnology= GetBatteryTechnology();
             var dates = GetDates();
             resultPhone.AnnouncedDate = dates[0];
             resultPhone.ReleasedDate = dates[1];
         }
-        public int GetBatteryCapacity()
-        {
-            return _phone.Overview.Battery?.Capacity != null ? int.Parse(Regex.Replace(_phone.Overview.Battery?.Capacity, "[^0-9+-]", "")) : -1;
-        }
-        public int GetId()
-        {
-            return _phone.PhoneId;
-        }
+        public int GetBatteryCapacity() => _phone.Overview.Battery?.Capacity != null ? int.Parse(Regex.Replace(_phone.Overview.Battery?.Capacity, "[^0-9+-]", "")) : -1;
+        public string GetBatteryTechnology() => _phone.Overview.Battery.Technology;
+        public int GetId() => _phone.PhoneId;
+        public string GetImageUrl() => _phone.ImageUrl.ToString();
+        public string GetName() => _phone.DeviceName;
+        public string GetBrand() => _phone.Brand;
         public string GetDeviceType()
         {
             var type = _phone.DeviceType.ToLowerInvariant().Contains("phone") ? "phone" : "tablet";
@@ -48,12 +47,6 @@ namespace ArktiPhones
                     ? "smartwatch" : type;
             return type;
         }
-
-        public string GetImageUrl() => _phone.ImageUrl.ToString();
-        public string GetName() => _phone.DeviceName;
-        public string GetBrand() => _phone.Brand;
-
-
         public DateTime[] GetDates()
         {
             var regex = new Regex(@"^(\d{4})?[,.; ]*(Q\d)?(\w+)?[,.; ]*(?:Released\s*)*(?:Exp. release )?(\d{4})?[,.; ]*(Q\d)?(\w+)? ?(\d+)?(?:st|nd|rd|th)?$", RegexOptions.IgnoreCase);
@@ -209,28 +202,6 @@ namespace ArktiPhones
             return new DateTime[] {
                 new DateTime(yearAnnounced, monthAnnounced, 1),
                 new DateTime(yearReleased, monthReleased, dayReleased) };
-        }
-        public DateTime GetReleaseDate()
-        {
-            var date = _phone.Detail.Launch.Announced
-               .Contains("Released ")
-               ? int.Parse(Regex.Replace(Regex.Replace(_phone.Overview.GeneralInfo.Launched, "Q(1|2|3|4)", ""), "[^0-9+-]", "")
-               .Substring(0, 4)) : 1;
-            return new DateTime(date, 1, 1);
-        }
-
-        public string GetAnnouncedDate()
-        {
-            var regex = new Regex(@"^(\d{4})[,\s]*");
-            var match = regex.Match(_phone.Detail.Launch.Announced);
-            var result = match.Groups[1].Value;
-            // result = 
-            // var date = _phone.Detail.Launch.Announced
-            //    .Contains("Released ")
-            //    ? int.Parse(Regex.Replace(Regex.Replace(_phone.Overview.GeneralInfo.Launched, "Q(1|2|3|4)", ""), "[^0-9+-]", "")
-            //    .Substring(0, 4)) : -1;
-            return result;
-            // return new DateTime(date, 1, 1);
         }
     }
 }

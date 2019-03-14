@@ -1,11 +1,4 @@
-AllPhonesDetails.json
-AllPhonesDetailsTest.json
-AllResult.json
-DistinctResult.json
-FinalResults.json
-InputPhonesProcessed.json
-RegexResults.json
-TestResult.json
+[Rr]esults/
 
 
 *.swp
