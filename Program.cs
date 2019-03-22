@@ -18,13 +18,13 @@ namespace ArktiPhones
             var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .GroupBy(ph => ph.Detail.Body.Build)
+                .GroupBy(ph => ph.Detail.Body.Sim)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
                 })
                 .OrderBy(p => p.Value);
-            var fastRun = false;
+            var fastRun = true;
             if (!fastRun)
             {
                 var remodeledPhones = inputPhonesProcessed.Select(p => new ValuesExtractor(p).resultPhone);
@@ -54,7 +54,7 @@ namespace ArktiPhones
                 JsonConvert.SerializeObject(distinctRawValuesCount, Formatting.Indented));
 
             System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
-                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Detail.Body.Build).Distinct().OrderByDescending(v => v), Formatting.Indented));
+                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Detail.Body.Sim).Distinct().OrderByDescending(v => v), Formatting.Indented));
 
 
             System.IO.File.WriteAllText(Path.Combine("Results", "InputPhonesProcessed.json"),
