@@ -5,52 +5,223 @@ namespace ArktiPhones
 {
     public class ValuesExtractor
     {
-        private ArktiPhones.Data _phone { get; set; }
+        private ArktiPhones.Data inputPhone { get; set; }
         public PhoneDetails resultPhone { get; set; }
         public ValuesExtractor(ArktiPhones.Data phone)
         {
-            _phone = phone;
+            inputPhone = phone;
             resultPhone = new PhoneDetails();
             DoTheStuff();
         }
 
         public void DoTheStuff()
         {
-            resultPhone.BatteryCapacity = GetBatteryCapacity();
-            resultPhone.DeviceType = GetDeviceType();
-            resultPhone.ImageUrl = GetImageUrl();
-            resultPhone.Name = GetName();
-            resultPhone.Brand = GetBrand();
-            resultPhone.PhoneId = GetId();
-            resultPhone.BatteryTechnology= GetBatteryTechnology();
-            var dates = GetDates();
-            resultPhone.AnnouncedDate = dates[0];
-            resultPhone.ReleasedDate = dates[1];
+            resultPhone.Name = inputPhone.DeviceName;
+            resultPhone.PhoneId = inputPhone.PhoneId;
+            resultPhone.Slug = inputPhone.Slug;
+            resultPhone.ImageUrl = inputPhone.ImageUrl.ToString();
+            resultPhone.Brand = inputPhone.Brand;
+            resultPhone.BatteryTechnology = inputPhone.Overview.Battery.Technology;
+            SetDeviceType();
+            SetComms();
+            SetDates();
+            SetScreenSize();
+            SetBatteryCapacity();
+            SetRam();
+            SetDisplayResolution();
+            SetDisplayPixelDensityAndRatio();
+            SetDimensions();
+            SetWeight();
+            SetBuildMaterials();
         }
-        public int GetBatteryCapacity() => _phone.Overview.Battery?.Capacity != null ? int.Parse(Regex.Replace(_phone.Overview.Battery?.Capacity, "[^0-9+-]", "")) : -1;
-        public string GetBatteryTechnology() => _phone.Overview.Battery.Technology;
-        public int GetId() => _phone.PhoneId;
-        public string GetImageUrl() => _phone.ImageUrl.ToString();
-        public string GetName() => _phone.DeviceName;
-        public string GetBrand() => _phone.Brand;
-        public string GetDeviceType()
+
+        private void SetBuildMaterials()
         {
-            var type = _phone.DeviceType.ToLowerInvariant().Contains("phone") ? "phone" : "tablet";
-            type = _phone.DeviceName.ToLower().Contains("watch")
-                || _phone.Overview.GeneralInfo.Os.ToLower().Contains("wear")
-                    ? "smartwatch" : type;
-            type = _phone.DeviceName == "Haier C300"
-                || _phone.DeviceName == "BLU X Link"
-                || _phone.DeviceName == "alcatel CareTime"
-                || _phone.DeviceName == "Huawei Fit"
-                || _phone.DeviceName == "Samsung Serenata"
-                    ? "smartwatch" : type;
-            return type;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Body?.Build))
+            {
+                string frontAndBackMaterial = null;
+                string frontMaterial = null;
+                string backMaterial = null;
+                string frameMaterial = null;
+                string bodyMaterial = null;
+
+                var match = Regex.Match(inputPhone.Detail.Body.Build, @"front\/back ([\w \(\)\/]*),?", RegexOptions.IgnoreCase);
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    frontAndBackMaterial = match.Groups[1].Value.Trim();
+                resultPhone.MaterialFront = frontAndBackMaterial;
+                resultPhone.MaterialBack = frontAndBackMaterial;
+
+                if (string.IsNullOrWhiteSpace(frontAndBackMaterial))
+                {
+                    match = Regex.Match(inputPhone.Detail.Body.Build, @"front ([\w \(\)&]*),?", RegexOptions.IgnoreCase);
+                    if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    {
+                        frontMaterial = match.Groups[1].Value.Trim();
+                    }
+                    resultPhone.MaterialFront = frontMaterial;
+                    match = Regex.Match(inputPhone.Detail.Body.Build, @"([\w \(\)\/-]*)? ?back ?([\w \(\)\/]*)?,?", RegexOptions.IgnoreCase);
+                    if (match.Groups[1].Success || match.Groups[2].Success)
+                    {
+                        var choseSecond = match.Groups[1].Value.Contains("Front")
+                            || match.Groups[1].Value.Contains("front")
+                            || match.Groups[1].Value.Length < match.Groups[2].Value.Length;
+                        backMaterial = choseSecond ? match.Groups[2].Value : match.Groups[1].Value.Trim();
+                        backMaterial = backMaterial.Contains("case/") ? backMaterial.Substring(0, backMaterial.Length - 6) : backMaterial;
+                    }
+                    match = Regex.Match(inputPhone.Detail.Body.Build, @"([\w \(\)&]*) frame & back", RegexOptions.IgnoreCase);
+                    if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    {
+                        backMaterial = match.Groups[1].Value.Trim();
+                        frameMaterial = match.Groups[1].Value.Trim();
+                    }
+                    resultPhone.MaterialBack = string.IsNullOrWhiteSpace(backMaterial) || backMaterial.Contains("and") || backMaterial.Contains("128/8 GB model") ? null : backMaterial;
+                }
+                match = Regex.Match(inputPhone.Detail.Body.Build, @"([\w\ ]+)\s*frame");
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    frameMaterial = match.Groups[1].Value.Trim();
+                resultPhone.MaterialFrame = frameMaterial;
+
+                match = Regex.Match(inputPhone.Detail.Body.Build, @"([\w ]+) (?:uni)?body", RegexOptions.IgnoreCase);
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                {
+                    bodyMaterial = match.Groups[1].Value;
+                    if (bodyMaterial.Contains("urved")) bodyMaterial = null;
+                }
+                resultPhone.MaterialBody = bodyMaterial;
+            }
         }
-        public DateTime[] GetDates()
+        private void SetDimensions()
+        {
+            var match = Regex.Match(inputPhone.Detail.Body.Dimensions, @"^(?:Unfolded:\s)?"
+              + @"(?:([\d\.]+)\s*x\s*([\d\.]+)\s*x\s*([\d\.]+)\s*mm,?\s*)?(?:([\d\.]+)\s?cc)?");
+            double? height = null;
+            double? width = null;
+            double? thickness = null;
+            double? volume = null;
+            if (match.Groups[1].Success && double.TryParse(match.Groups[1].Value, out var result))
+                height = result;
+            if (match.Groups[2].Success && double.TryParse(match.Groups[2].Value, out result))
+                width = result;
+            if (match.Groups[3].Success && double.TryParse(match.Groups[3].Value, out result))
+                thickness = result;
+            if (match.Groups[4].Success && double.TryParse(match.Groups[4].Value, out result))
+                volume = result;
+            resultPhone.BodyHeight = height;
+            resultPhone.BodyWidth = width;
+            resultPhone.BodyThickness = thickness;
+            resultPhone.BodyVolume = volume;
+        }
+        private void SetWeight()
+        {
+            var match = Regex.Match(inputPhone.Detail.Body.Weight, @"^(?:From\s*)?(?:~\s*)?(?:([\d\.]+)\s*,?\s*g?\s*)?(?:([\d\.]+)\s?cc)?");
+            double? weight = null;
+            if (double.TryParse(match.Groups[1].Value, out var result))
+                weight = result;
+            resultPhone.Weight = weight;
+        }
+        private void SetDisplayResolution()
+        {
+            if (inputPhone.Overview.Display.Resolution == null)
+                return;
+            var match = Regex.Match(inputPhone.Overview.Display.Resolution, @"^(?:up to )?(?:(\d\d+)\s?x(\d\d+)"
+              + @"\s*(?:pixels)?,?\s*)?(?:(\d+)\s+lines)?(?:\d+\s?x\d+\s*chars)?");
+            int? width = null;
+            int? height = null;
+            int? lines = null;
+            if (int.TryParse(match.Groups[1].Value, out var result))
+                width = result;
+            if (int.TryParse(match.Groups[2].Value, out result))
+                height = result;
+            if (int.TryParse(match.Groups[3].Value, out result))
+                lines = result;
+
+            resultPhone.ResolutionWidth = width;
+            resultPhone.ResolutionHeight = height;
+            resultPhone.ResolutionLines = lines;
+        }
+        private void SetDisplayPixelDensityAndRatio()
+        {
+            var match = Regex.Match(inputPhone.Detail.Display.Resolution, @"(?:([\d\.]+):([\d\.]+)\sratio\s?)?"
+              + @"(?:\(.(\d+)\sppi(?:\s?pixel)?\sdensity\))?$");
+            double? widthRatio = null;
+            double? heightRatio = null;
+            double? density = null;
+            if (double.TryParse(match.Groups[1].Value, out var result))
+            {
+                widthRatio = result;
+            }
+            if (double.TryParse(match.Groups[2].Value, out result))
+            {
+                heightRatio = result;
+            }
+            if (double.TryParse(match.Groups[3].Value, out result))
+            {
+                density = result;
+            }
+            resultPhone.DisplayPixelDensity = density;
+            resultPhone.WidthRatio = widthRatio;
+            resultPhone.HeightRatio = heightRatio;
+        }
+        public void SetScreenSize()
+        {
+            var match = Regex.Match(inputPhone.Detail.Display.Size, @"^(\d+\.?\d*) inches,?\s?(?:-,\s)?(?:\d*\.\d*, )?"
+              + @"(?:([\d\.]+\sx\s+[\d\.]+)\smm,?\s)?(?:(\d+\.?\d*)\scm2\s?)?(?:\(~?([\d\.]+)%.*\))?");
+            double? size = null;
+            double? area = null;
+            double? screenToBodyRatio = null;
+            if (double.TryParse(match.Groups[1].Value, out var result))
+                size = result;
+            if (double.TryParse(match.Groups[3].Value, out result))
+                area = result;
+            if (double.TryParse(match.Groups[4].Value, out result))
+                screenToBodyRatio = result;
+            resultPhone.DisplaySize = size;
+            resultPhone.DisplayArea = area;
+            resultPhone.ScreenToBodyRatio = screenToBodyRatio;
+        }
+        public void SetRam()
+        {
+            if (inputPhone.Overview.Expansion?.Ram == null)
+                resultPhone.RamInMb = null;
+            else
+            {
+                var match = Regex.Match(inputPhone.Overview.Expansion?.Ram, @"^(\d*\.?\d*)([MG]B)").Groups;
+                resultPhone.RamInMb = (int)double.Parse(match[1].Value) * (match[2].Value == "GB" ? 1024 : 1);
+            }
+        }
+
+        private void SetComms()
+        {
+            resultPhone.Bluetooth = Regex.Match(inputPhone.Detail.Comms.Bluetooth, @"^[v\.]*((?:\d+.[\dx]+|Yes|yes))").Groups[1].Value;
+            resultPhone.Infrared = inputPhone.Detail.Comms.InfraredPort?.ToLowerInvariant().Contains("yes") == true;
+        }
+
+        public void SetBatteryCapacity()
+        {
+            if (inputPhone.Overview.Battery?.Capacity == null)
+                resultPhone.BatteryCapacity = null;
+            else
+                resultPhone.BatteryCapacity = int.Parse(Regex.Replace(inputPhone.Overview.Battery?.Capacity, "[^0-9+-]", ""));
+        }
+
+        public void SetDeviceType()
+        {
+            var type = inputPhone.DeviceType.ToLowerInvariant().Contains("phone") ? "phone" : "tablet";
+            type = inputPhone.DeviceName.ToLower().Contains("watch")
+                || inputPhone.Overview.GeneralInfo.Os.ToLower().Contains("wear")
+                    ? "smartwatch" : type;
+            type = inputPhone.DeviceName == "Haier C300"
+                || inputPhone.DeviceName == "BLU X Link"
+                || inputPhone.DeviceName == "alcatel CareTime"
+                || inputPhone.DeviceName == "Huawei Fit"
+                || inputPhone.DeviceName == "Samsung Serenata"
+                    ? "smartwatch" : type;
+            resultPhone.DeviceType = type;
+        }
+        public void SetDates()
         {
             var regex = new Regex(@"^(\d{4})?[,.; ]*(Q\d)?(\w+)?[,.; ]*(?:Released\s*)*(?:Exp. release )?(\d{4})?[,.; ]*(Q\d)?(\w+)? ?(\d+)?(?:st|nd|rd|th)?$", RegexOptions.IgnoreCase);
-            var match = regex.Match(_phone.Detail.Launch.Announced);
+            var match = regex.Match(inputPhone.Detail.Launch.Announced);
             var yearAnnounced = 1;
             var monthAnnounced = 1;
             var yearReleased = 1;
@@ -199,9 +370,8 @@ namespace ArktiPhones
                     dayReleased = result < 32 ? result : 1;
             }
 
-            return new DateTime[] {
-                new DateTime(yearAnnounced, monthAnnounced, 1),
-                new DateTime(yearReleased, monthReleased, dayReleased) };
+            resultPhone.AnnouncedDate = new DateTime(yearAnnounced, monthAnnounced, 1);
+            resultPhone.ReleasedDate = new DateTime(yearReleased, monthReleased, dayReleased);
         }
     }
 }

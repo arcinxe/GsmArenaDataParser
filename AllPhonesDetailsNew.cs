@@ -18,7 +18,12 @@ namespace ArktiPhones
 
     public partial class Data
     {
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public int PhoneId { get; set; }
+        
+        [JsonProperty("slug", NullValueHandling = NullValueHandling.Ignore)]
+        public string Slug { get; set; }
+
         [JsonProperty("brand", NullValueHandling = NullValueHandling.Ignore)]
         public string Brand { get; set; }
 
