@@ -33,8 +33,93 @@ namespace ArktiPhones
             SetDimensions();
             SetWeight();
             SetBuildMaterials();
+            SetSimCard();
+            SetMemory();
         }
 
+        private void SetMemory()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Memory?.Internal)) return;
+            int? internalMemory = null;
+            int? readOnlyMemory = null;
+            int multiplier = 1;
+
+            var match = Regex.Match(inputPhone.Detail.Memory.Internal, @"^(?:\d*\/)*(?:\d+ ?[KMG]B ram[,;] )?(?:(\d+\.?[\d]*) ?([KMGT])B(?! ram| flash| rom))?", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+            {
+                var rawMemory = "";
+                var unit = "";
+                rawMemory = match.Groups[1].Value;
+                unit = match.Groups[2].Value.ToUpperInvariant();
+                multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
+                internalMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
+                internalMemory *= multiplier;
+            }
+            match = Regex.Match(inputPhone.Detail.Memory.Internal, @"(\d+\.?[\d]*) ?([KMGT])B ROM", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+            {
+                var rawMemory = "";
+                var unit = "";
+                rawMemory = match.Groups[1].Value;
+                unit = match.Groups[2].Value;
+                multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
+                readOnlyMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
+                readOnlyMemory *= multiplier;
+            }
+            resultPhone.MemoryInternal = internalMemory;
+            resultPhone.MemoryReadOnly = readOnlyMemory;
+            // resultPhone.MemoryInternal = $"{rawInternalMemory} {rawInternalMemoryUnit}, {rawReadOnlyMemory} {rawReadOnlyMemoryUnit}";
+        }
+        private void SetSimCard()
+        {
+            string sim1 = null;
+            string sim2 = null;
+            string sim3 = null;
+            string sim4 = null;
+            var match = Regex.Match(inputPhone.Detail.Body.Sim, @"^(?:hybrid )?"
+              + @"((?:yes|pre|non|electronic|esim|single|dual|triple|quad|nano|mini|micro))?"
+              + @"(?:-sim,? ?(?:card)? ?&? ?(e)(?:sime|lectronic)?)?[\w ]*,? ?(?:\(?((?:e|mini|micro|nano))[- ]?sim)? ?"
+              + @"[\/,&]*(?:and)? ?(?:(?:((?:e|mini|micro|nano))[- ]?sim)?)?", RegexOptions.IgnoreCase);
+            switch (match.Groups[1].Value.ToLowerInvariant())
+            {
+                case "mini":
+                case "micro":
+                case "nano":
+                case "esim":
+                case "electronic":
+                    sim1 = match.Groups[1].Value.ToLowerInvariant();
+                    sim1 = sim1 == "esim" ? "electronic" : sim1;
+                    if (!string.IsNullOrWhiteSpace(match.Groups[2].Value)) sim2 = match.Groups[2].Value.ToLowerInvariant();
+                    sim2 = sim2 == "e" || sim2 == "esim" ? "electronic" : sim2;
+                    break;
+                case "yes":
+                case "pre":
+                case "non":
+                    sim1 = "yes";
+                    break;
+                case "single":
+                    sim1 = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? "yes" : match.Groups[3].Value.ToLowerInvariant();
+                    break;
+                case "dual":
+                    sim1 = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? "yes" : match.Groups[3].Value.ToLowerInvariant();
+                    sim2 = string.IsNullOrWhiteSpace(match.Groups[4].Value) ? sim1 : match.Groups[4].Value.ToLowerInvariant();
+                    break;
+                case "triple":
+                    sim1 = sim2 = sim3 = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? "yes" : match.Groups[3].Value.ToLowerInvariant();
+                    break;
+                case "quad":
+                    sim1 = sim2 = sim3 = sim4 = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? "yes" : match.Groups[3].Value.ToLowerInvariant();
+                    break;
+                default:
+                    break;
+
+            }
+
+            resultPhone.Sim1 = sim1;
+            resultPhone.Sim2 = sim2;
+            resultPhone.Sim3 = sim3;
+            resultPhone.Sim4 = sim4;
+        }
         private void SetBuildMaterials()
         {
             if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Body?.Build))

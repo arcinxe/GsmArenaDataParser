@@ -19,7 +19,10 @@ public class PhoneDetails
     public string MaterialBack { get; set; }
     public string MaterialFrame { get; set; }
     public string MaterialBody { get; set; }
-    public string Sim { get; set; }// WAITING
+    public string Sim1 { get; set; }
+    public string Sim2 { get; set; }
+    public string Sim3 { get; set; }
+    public string Sim4 { get; set; }
     public double? Weight { get; set; }
     public string Gps { get; set; }// WAITING
     public string Usb { get; set; }// WAITING
@@ -39,7 +42,8 @@ public class PhoneDetails
     public string Sensors { get; set; }// WAITING
     public string Status { get; set; }// WAITING
     public string MemoryCard { get; set; }// WAITING
-    public string MemoryInternal { get; set; }// WAITING
+    public int? MemoryInternal { get; set; }// WAITING
+    public int? MemoryReadOnly { get; set; }// WAITING
     public int? RamInMb { get; set; }
     public string Colors { get; set; }// WAITING
     public double? Price { get; set; }// WAITING

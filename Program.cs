@@ -18,24 +18,24 @@ namespace ArktiPhones
             var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .GroupBy(ph => ph.Detail.Body.Sim)
+                .GroupBy(ph => ph.Detail.Comms?.Usb)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
                 })
                 .OrderBy(p => p.Value);
-            var fastRun = true;
+            var fastRun = false;
             if (!fastRun)
             {
                 var remodeledPhones = inputPhonesProcessed.Select(p => new ValuesExtractor(p).resultPhone);
                 var distinctRemodeledValuesCount = remodeledPhones
-                    .GroupBy(ph => ph.MaterialFrame)
+                    .GroupBy(ph => ph.MemoryInternal)
                     .Select(p =>
                     {
                         var query = from selectedPhone in p
                                     join originalPhone in inputPhonesProcessed
                                     on selectedPhone.PhoneId equals originalPhone.PhoneId
-                                    select originalPhone.Detail.Body.Build;
+                                    select originalPhone.Detail.Memory.Internal;
                         return new
                         {
                             Key = $"{p.Key} (x{query.Count()})",
@@ -53,8 +53,10 @@ namespace ArktiPhones
             System.IO.File.WriteAllText(Path.Combine("Results", "TestRawResult.json"),
                 JsonConvert.SerializeObject(distinctRawValuesCount, Formatting.Indented));
 
+            var distinctResult = inputPhonesProcessed.Select(p => p.Detail.Comms?.Usb).Distinct().OrderByDescending(v => v);
+            System.IO.File.WriteAllLines(Path.Combine("Results", "DistinctResult.txt"), distinctResult);
             System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
-                JsonConvert.SerializeObject(inputPhonesProcessed.Select(p => p.Detail.Body.Sim).Distinct().OrderByDescending(v => v), Formatting.Indented));
+                JsonConvert.SerializeObject(distinctResult, Formatting.Indented));
 
 
             System.IO.File.WriteAllText(Path.Combine("Results", "InputPhonesProcessed.json"),
