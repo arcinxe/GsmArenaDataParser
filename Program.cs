@@ -12,13 +12,13 @@ namespace ArktiPhones
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("SHITSTORM STARTED!");
+            System.Console.WriteLine("STUFF STARTED!");
             var startTime = DateTime.Now;
             var file = System.IO.File.ReadAllText(Path.Combine("Results", "AllPhonesDetails.json"));
             var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .GroupBy(ph => ph.Detail.Comms?.Usb)
+                .GroupBy(ph => ph.Detail.Tests?.BatteryLife)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
@@ -27,22 +27,33 @@ namespace ArktiPhones
             var fastRun = false;
             if (!fastRun)
             {
-                var remodeledPhones = inputPhonesProcessed.Select(p => new ValuesExtractor(p).resultPhone);
+                var remodeledPhones = new List<PhoneDetails>(); //inputPhonesProcessed.Select(p => new ValuesExtractor(p).resultPhone);
+                var progressCount = 0;
+                using (var progress = new ProgressBar())
+                {
+                    foreach (var phone in inputPhonesProcessed)
+                    {
+                        remodeledPhones.Add(new ValuesExtractor(phone).resultPhone);
+                        progress.Report((double)progressCount++ / inputPhonesProcessed.Count);
+                    }
+                }
                 var distinctRemodeledValuesCount = remodeledPhones
-                    .GroupBy(ph => ph.MemoryInternal)
+                    .GroupBy(ph => ph.BatteryEndurance)
+                    .OrderByDescending(p => p.Key)
                     .Select(p =>
                     {
                         var query = from selectedPhone in p
                                     join originalPhone in inputPhonesProcessed
                                     on selectedPhone.PhoneId equals originalPhone.PhoneId
-                                    select originalPhone.Detail.Memory.Internal;
+                                    select originalPhone.Detail.Tests?.BatteryLife;
                         return new
                         {
                             Key = $"{p.Key} (x{query.Count()})",
                             Values = query.Distinct()
                         };
                     })
-                    .OrderByDescending(b => b.Key).ToList();
+                    // .OrderByDescending(b => b.Key)
+                    .ToList();
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
                     JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "TestRemodeledResult.json"),
@@ -52,8 +63,9 @@ namespace ArktiPhones
 
             System.IO.File.WriteAllText(Path.Combine("Results", "TestRawResult.json"),
                 JsonConvert.SerializeObject(distinctRawValuesCount, Formatting.Indented));
+            System.IO.File.WriteAllLines(Path.Combine("Results", "TestRawResult.txt"), distinctRawValuesCount.Select(p => p.Value));
 
-            var distinctResult = inputPhonesProcessed.Select(p => p.Detail.Comms?.Usb).Distinct().OrderByDescending(v => v);
+            var distinctResult = inputPhonesProcessed.Select(p => p.Detail.Tests?.BatteryLife)/* .Select(p => p?.ElementAtOrDefault(1)) */.Distinct().OrderByDescending(v => v);
             System.IO.File.WriteAllLines(Path.Combine("Results", "DistinctResult.txt"), distinctResult);
             System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
                 JsonConvert.SerializeObject(distinctResult, Formatting.Indented));
@@ -63,7 +75,8 @@ namespace ArktiPhones
                 JsonConvert.SerializeObject(inputPhonesProcessed, Formatting.Indented));
 
             System.Console.WriteLine($"gud: {inputPhonesProcessed.Count()} devices");
-            System.Console.WriteLine($"DONE IN: ~{(DateTime.Now - startTime).TotalMilliseconds.ToString("##")}ms!");
+            var endTime = DateTime.Now - startTime;
+            System.Console.WriteLine($"DONE IN: ~{endTime:mm\\m\\:ss\\s\\:fff\\m\\s}!");
         }
     }
 }

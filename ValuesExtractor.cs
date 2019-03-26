@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace ArktiPhones
@@ -26,7 +27,7 @@ namespace ArktiPhones
             SetComms();
             SetDates();
             SetScreenSize();
-            SetBatteryCapacity();
+            SetBattery();
             SetRam();
             SetDisplayResolution();
             SetDisplayPixelDensityAndRatio();
@@ -35,8 +36,103 @@ namespace ArktiPhones
             SetBuildMaterials();
             SetSimCard();
             SetMemory();
+            SetUsb();
+            SetOs();
+            SetPrice();
         }
 
+        private void SetPrice()
+        {
+
+            double? price = null;
+            string currency = null;
+            double? priceInEuro = null;
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Misc.Price)) return;
+            var match = Regex.Match(inputPhone.Detail.Misc.Price, @"^(?:About )([\d.]+) (\w+)", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value) && double.TryParse(match.Groups[1].Value, out var result))
+            {
+                price = result;
+                currency = match.Groups[2].Value;
+                double priceMultiplier = 1;
+                switch (currency)
+                {
+                    // rates on 2019-03-26
+                    case "EUR":
+                        priceMultiplier = 1;
+                        break;
+                    case "USD":
+                        priceMultiplier = 0.88;
+                        break;
+                    case "INR":
+                        priceMultiplier = 0.013;
+                        break;
+                    default:
+                        break;
+                }
+                priceInEuro = Math.Ceiling((price * priceMultiplier).Value);
+            }
+            resultPhone.Price = price;
+            resultPhone.PriceCurrency = currency;
+            resultPhone.EstimatedPriceInEuro = priceInEuro;
+        }
+        private void SetOs()
+        {
+            string os = null;
+            string osFlavor = null;
+            string osVersion = null;
+            string osLatestVersion = null;
+            string osFlavorVersion = null;
+
+            if (inputPhone.Overview.GeneralInfo.Os.Contains("android", StringComparison.OrdinalIgnoreCase))
+            {
+                var match = Regex.Match(inputPhone.Overview.GeneralInfo.Os, @"^(?:(?:customized )?android(?: wear,?)?(?: os)? ?)(?:([\d\.x]+)(?:[ a-zA-Z]*)\/?,? ?)?(?:([\d\.]+),? ?)?(?:(?:up(?:grad[аa]ble)? to (?:android )?([\d\.]+)(?:[a-zA-Z ]*))?)?(?:not up to [\d\.]+)?(?:planned upgrade to (?:android )?([\d\.]+))?(?:; )*(?:([a-zA-z ]+)([\d\.]+)?)?", RegexOptions.IgnoreCase);
+                os = inputPhone.Overview.GeneralInfo.Os.Contains("android wear", StringComparison.OrdinalIgnoreCase) ? "android wear" : "android";
+                osVersion = string.IsNullOrWhiteSpace(match.Groups[1].Value) ? null : match.Groups[1].Value;
+                osFlavor = string.IsNullOrWhiteSpace(match.Groups[5].Value) ? null : match.Groups[5].Value.Trim();
+                osFlavorVersion = string.IsNullOrWhiteSpace(match.Groups[6].Value) ? null : match.Groups[6].Value;
+                osVersion = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? osVersion : match.Groups[2].Value;
+                osLatestVersion = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+            }
+            else if (Regex.Match(inputPhone.Overview.GeneralInfo.Os, @"(?:\bios\b|watchos)", RegexOptions.IgnoreCase).Success)
+            {
+                var match = Regex.Match(inputPhone.Overview.GeneralInfo.Os, @"^(ios|watchos) ?(?:([\d\.]+))?(?:,? ?up to )(?:ios )?([\d\.]+)", RegexOptions.IgnoreCase);
+                os = string.IsNullOrWhiteSpace(match.Groups[1].Value) ? null : match.Groups[1].Value;
+                osVersion = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
+                osLatestVersion = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+            }
+            resultPhone.OperatingSystemName = os;
+            resultPhone.OperatingSystemVersion = osVersion;
+            resultPhone.OperatingSystemLatestVersion = osLatestVersion;
+            resultPhone.OperatingSystemFlavorName = osFlavor;
+            resultPhone.OperatingSystemFlavorVersion = osFlavorVersion;
+        }
+        private void SetUsb()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Comms?.Usb)) return;
+            string version = null;
+            string connector = null;
+            List<string> features = null;
+            var match = Regex.Match(inputPhone.Detail.Comms.Usb, @"^(?:(\d\.\d),? ?)?(?:(?!usb host|usb on-the-go)(miniusb|microusb|type-c|usb|proprietary|pop-port) ?(\d\.\d)?[,;]? ?)?(?:revers[\w ]+[,;]?\s)?(?: ?\(((?:mhl|slimport))? ?.*\),? ?)?(?:(usb host)?,? ?(usb (?:on-the-go|otg))?[;,]? ?(magnetic connector)?)?", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                version = match.Groups[1].Value;
+            if (version == null && !string.IsNullOrWhiteSpace(match.Groups[3].Value))
+                version = match.Groups[3].Value;
+
+            resultPhone.UsbVersion = version;
+            if (!string.IsNullOrWhiteSpace(match.Groups[2].Value))
+                connector = match.Groups[2].Value.ToLowerInvariant();
+            resultPhone.UsbConnector = connector == "usb" ? null : connector;
+
+            if ($"{match.Groups[4].Value}{match.Groups[5].Value}{match.Groups[6].Value}{match.Groups[7].Value}" != "")
+                features = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(match.Groups[4].Value)) features.Add(match.Groups[4].Value);
+            if (!string.IsNullOrWhiteSpace(match.Groups[5].Value)) features.Add(match.Groups[5].Value);
+            if (!string.IsNullOrWhiteSpace(match.Groups[6].Value)) features.Add(match.Groups[6].Value);
+            if (!string.IsNullOrWhiteSpace(match.Groups[7].Value)) features.Add(match.Groups[7].Value);
+            resultPhone.UsbFeatures = features;
+
+        }
         private void SetMemory()
         {
             if (string.IsNullOrWhiteSpace(inputPhone.Detail.Memory?.Internal)) return;
@@ -115,10 +211,14 @@ namespace ArktiPhones
 
             }
 
-            resultPhone.Sim1 = sim1;
-            resultPhone.Sim2 = sim2;
-            resultPhone.Sim3 = sim3;
-            resultPhone.Sim4 = sim4;
+            if (sim1 != null)
+            {
+                resultPhone.SimCards = new List<string>();
+                resultPhone.SimCards.Add(sim1);
+                if (sim2 != null) resultPhone.SimCards.Add(sim2);
+                if (sim3 != null) resultPhone.SimCards.Add(sim3);
+                if (sim4 != null) resultPhone.SimCards.Add(sim4);
+            }
         }
         private void SetBuildMaterials()
         {
@@ -281,12 +381,12 @@ namespace ArktiPhones
             resultPhone.Infrared = inputPhone.Detail.Comms.InfraredPort?.ToLowerInvariant().Contains("yes") == true;
         }
 
-        public void SetBatteryCapacity()
+        public void SetBattery()
         {
-            if (inputPhone.Overview.Battery?.Capacity == null)
-                resultPhone.BatteryCapacity = null;
-            else
+            if (!string.IsNullOrWhiteSpace(inputPhone.Overview.Battery?.Capacity))
                 resultPhone.BatteryCapacity = int.Parse(Regex.Replace(inputPhone.Overview.Battery?.Capacity, "[^0-9+-]", ""));
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Tests?.BatteryLife))
+                resultPhone.BatteryEndurance = int.Parse(Regex.Match(inputPhone.Detail.Tests.BatteryLife, @"(\d)+").Value);
         }
 
         public void SetDeviceType()
