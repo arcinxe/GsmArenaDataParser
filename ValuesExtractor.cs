@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ArktiPhones
@@ -39,8 +40,202 @@ namespace ArktiPhones
             SetUsb();
             SetOs();
             SetPrice();
+            SetColors();
+            SetCameraResolution();
+            SetGps();
+            SetDisplay();
+            SetStatus();
+            SetSensors();
+            SetAudioJack();
+            SetWlan();
+            SetCpu();
         }
 
+        private void SetCpu()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Overview.Expansion?.Chipset)) return;
+            var match = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:([Аa-zA-Z-]{2,})\b)?(?: (?:([a-zA-Z]{3,})\b))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?");
+            string name = null;
+            string series = null;
+            string manufacturer = null;
+            string model = null;
+            if (match.Success)
+            {
+            }
+
+        }
+        private void SetWlan()
+        {
+            var features = new List<string>();
+            var standards = new List<string>();
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Comms?.Wlan))
+            {
+                var match = Regex.Match(inputPhone.Detail.Comms.Wlan, @"^wi-fi( 802\.11)?,? ?(?:([bgnacdfhiqxyerk\/]+)\b)?(?: ?, ?((?:[a-zA-Z0-9\. -]+\b[,;\/]? )+))?", RegexOptions.IgnoreCase);
+                if (match.Groups[2].Success)
+                {
+                    standards = match.Groups[2].Value.Split('/').ToList();
+                    if (match.Groups[3].Success)
+                    {
+                        features = match.Groups[3].Value
+                            .Replace(";", ",")
+                            .Replace("/", ",")
+                            .Split(",")
+                            .Select(f => f.Trim())
+                            .Where(f => !string.IsNullOrWhiteSpace(f))
+                            .OrderBy(f => f)
+                            .ToList();
+                    }
+                    resultPhone.Wlan = true;
+                }
+                else
+                    resultPhone.Wlan = inputPhone.Detail.Comms.Wlan.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                        ? true
+                        : (inputPhone.Detail.Comms.Wlan.Equals("false", StringComparison.OrdinalIgnoreCase)
+                            ? false
+                            : default(bool));
+            }
+            resultPhone.WlanFeatures = features;
+            resultPhone.WlanStandards = standards;
+        }
+        private void SetAudioJack()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Sound?.The3_5MmJack)) return;
+            if (inputPhone.Detail.Sound.The3_5MmJack.Contains("yes", StringComparison.OrdinalIgnoreCase))
+                resultPhone.AudioJack = true;
+            else if (inputPhone.Detail.Sound.The3_5MmJack.Contains("no", StringComparison.OrdinalIgnoreCase))
+                resultPhone.AudioJack = false;
+        }
+        private void SetSensors()
+        {
+            var features = new List<string>();
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Features?.Sensors))
+            {
+                if (inputPhone.Detail.Features.Sensors.Contains("accelerometer", StringComparison.OrdinalIgnoreCase))
+                    features.Add("accelerometer");
+                if (inputPhone.Detail.Features.Sensors.Contains("altmeter", StringComparison.OrdinalIgnoreCase))
+                    features.Add("altmeter");
+                if (inputPhone.Detail.Features.Sensors.Contains("barometer", StringComparison.OrdinalIgnoreCase))
+                    features.Add("barometer");
+                if (inputPhone.Detail.Features.Sensors.Contains("compass", StringComparison.OrdinalIgnoreCase))
+                    features.Add("compass");
+                if (inputPhone.Detail.Features.Sensors.Contains("color spectrum", StringComparison.OrdinalIgnoreCase))
+                    features.Add("spectrum");
+                if (inputPhone.Detail.Features.Sensors.Contains("face id", StringComparison.OrdinalIgnoreCase))
+                    features.Add("face id");
+                if (inputPhone.Detail.Features.Sensors.Contains("fingerprint", StringComparison.OrdinalIgnoreCase))
+                    features.Add("fingerprint");
+                if (inputPhone.Detail.Features.Sensors.Contains("gesture", StringComparison.OrdinalIgnoreCase))
+                    features.Add("gesture");
+                if (inputPhone.Detail.Features.Sensors.Contains("gyro", StringComparison.OrdinalIgnoreCase))
+                    features.Add("gyro");
+                if (inputPhone.Detail.Features.Sensors.Contains("heart rate", StringComparison.OrdinalIgnoreCase))
+                    features.Add("rate");
+                if (inputPhone.Detail.Features.Sensors.Contains("humidity", StringComparison.OrdinalIgnoreCase))
+                    features.Add("humidity");
+                if (inputPhone.Detail.Features.Sensors.Contains("infrared face recognition", StringComparison.OrdinalIgnoreCase))
+                    features.Add("infrared face recognition");
+                if (inputPhone.Detail.Features.Sensors.Contains("iris scanner", StringComparison.OrdinalIgnoreCase))
+                    features.Add("scanner");
+                if (inputPhone.Detail.Features.Sensors.Contains("proximity", StringComparison.OrdinalIgnoreCase))
+                    features.Add("proximity");
+                if (inputPhone.Detail.Features.Sensors.Contains("sensor core", StringComparison.OrdinalIgnoreCase))
+                    features.Add("core");
+                if (inputPhone.Detail.Features.Sensors.Contains("spo2", StringComparison.OrdinalIgnoreCase))
+                    features.Add("spo2");
+                if (inputPhone.Detail.Features.Sensors.Contains("temperature", StringComparison.OrdinalIgnoreCase)
+                || inputPhone.Detail.Features.Sensors.Contains("thermometer", StringComparison.OrdinalIgnoreCase))
+                    features.Add("thermometer");
+            }
+            resultPhone.Sensors = features;
+        }
+        private void SetStatus()
+        {
+            var match = Regex.Match(inputPhone.Detail.Launch.Status, @"^(?:(available|cancelled|coming soon|discontinued))", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                resultPhone.Status = match.Groups[1].Value.ToLowerInvariant();
+        }
+        private void SetDisplay()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Display?.Type)) return;
+            var match = Regex.Match(inputPhone.Detail.Display.Type, @"(?:(\b[\d]+)([mk ]) ?(?:colors)? ?)(?:\(([\d]+)([mk])? effective)?", RegexOptions.IgnoreCase);
+            string displayColorMode = null;
+            string touchscreen = null;
+            int? colors = null;
+            int? effectiveColors = null;
+            var multiplier = 1;
+
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value) && int.TryParse(match.Groups[1].Value, out var result))
+            {
+                multiplier = match.Groups[2].Value.ToLowerInvariant() == "m" ? 1000000 : match.Groups[2].Value.ToLowerInvariant() == "k" ? 1000 : 1;
+                colors = result == 0 ? default(int?) : result * multiplier;
+                resultPhone.DisplayColors = colors;
+            }
+            if (!string.IsNullOrWhiteSpace(match.Groups[3].Value) && int.TryParse(match.Groups[3].Value, out result))
+            {
+                multiplier = match.Groups[4].Value.ToLowerInvariant() == "m" ? 1000000 : match.Groups[4].Value.ToLowerInvariant() == "k" ? 1000 : 1;
+                effectiveColors = result == 0 ? default(int?) : result * multiplier;
+                resultPhone.DisplayEffectiveColors = effectiveColors;
+            }
+            match = Regex.Match(inputPhone.Detail.Display.Type, @"(?:(mono|gray|grey|single|\bcolor\b)[a-zA-Z ,]*)", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+            {
+                displayColorMode = match.Groups[1].Value.ToLowerInvariant();
+            }
+            if ((displayColorMode == "mono" && colors != null) || displayColorMode == "gray" || displayColorMode == "grey")
+                displayColorMode = "grayscale";
+            if (displayColorMode == null && colors > 16)
+                displayColorMode = "color";
+            if (displayColorMode == "single")
+                displayColorMode = "mono";
+            resultPhone.DisplayColorMode = displayColorMode;
+            if (inputPhone.Detail.Display.Type == "Capacitive touchscreen")
+            { }
+            if (inputPhone.Detail.Display.Type.Contains("touch", StringComparison.OrdinalIgnoreCase)) touchscreen = "yes";
+            if (inputPhone.Detail.Display.Type.Contains("resistive", StringComparison.OrdinalIgnoreCase)) touchscreen = "resistive";
+            if (inputPhone.Detail.Display.Type.Contains("capacitive", StringComparison.OrdinalIgnoreCase)) touchscreen = "capacitive";
+            resultPhone.Touchscreen = touchscreen;
+            match = Regex.Match(inputPhone.Detail.Display.Type, @"^(lcd|oled|cstn|grayscale lcd|tft|fstn)?(?:([3a-zA-Z][\w +-]*?)(?:grap|capac|resist|touch|toch|,|\())?", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                resultPhone.DisplayType = match.Groups[1].Value.Trim();
+            if (!string.IsNullOrWhiteSpace(match.Groups[2].Value) && !match.Groups[2].Value.Contains("capacitive", StringComparison.OrdinalIgnoreCase))
+                resultPhone.DisplayType = match.Groups[2].Value.Trim();
+            // match = Regex.Match(inputPhone.Detail.Display.Type, @"(?:(mono|gray|grey|\bcolor\b)[a-zA-Z ,]*)?(?:([\d]+) shades)?(?:(\b[\d\.]+)([mk ]) ?(?:colors)? ?)?(?:\(([\d\.]+)([mk])? effective)?", RegexOptions.IgnoreCase);
+
+            // resultPhone.Test = $"{match.Groups[1].Value}, {match.Groups[2].Value}, {match.Groups[3].Value}, {match.Groups[4].Value}, ";
+        }
+        private void SetGps()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Comms?.Gps)) return;
+            var match = Regex.Match(inputPhone.Detail.Comms.Gps, @"^(?:(yes|no)[,;]? ?)?(?:with(?: dual-band)? ?)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?(?:(a-gps|b-gps|s-gps|glonass|galileo|bds|bds2|beidou|qzss|gnss|sbas)[,; ]*)?", RegexOptions.IgnoreCase);
+            var gps = string.IsNullOrWhiteSpace(match.Groups[1].Value) ? null : match.Groups[1].Value.ToLowerInvariant();
+            var features = match.Groups
+                .Skip(2)
+                .Where(g => !string.IsNullOrWhiteSpace(g.Value))
+                .Select(g => g.Value);
+            resultPhone.Gps = gps == "yes" ? true : gps == "no" ? false : default(bool?);
+            resultPhone.GpsFeatures = features.ToList();
+
+        }
+        private void SetCameraResolution()
+        {
+            // double? photoResoluton = null;
+            // double? videoResoluton = null;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Overview.Camera?.Photo) && double.TryParse(Regex.Replace(inputPhone.Overview.Camera.Photo, @"[^0-9\.]", ""), out var photoResolution))
+                resultPhone.PhotoResolution = photoResolution >= 0 ? photoResolution : default(double?);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Overview.Camera?.Video) && int.TryParse(Regex.Replace(inputPhone.Overview.Camera.Video, @"[^0-9\.]", ""), out var videoResolution))
+                resultPhone.VideoResolution = videoResolution > 0 || videoResolution < 10000 ? videoResolution : default(int?);
+        }
+        private void SetColors()
+        {
+            var match = Regex.Match(inputPhone.Detail.Misc.Colors, @"^\(?(?:[\d]+[ -]+)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?(?:[\( ]*((?:(?! and)[a-zA-Z \.\/&\+-])*)(?:[,;\(\) ]|and ?)*)?", RegexOptions.IgnoreCase);
+            var colors = match.Groups.Select(g => g.Value).Skip(1).ToList();
+            colors = colors.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
+            // if (colors.Count() == 0) return;
+            // colors.Remove(c => p.Contains("model")))
+            resultPhone.Colors = colors;
+
+
+        }
         private void SetPrice()
         {
 
@@ -135,35 +330,57 @@ namespace ArktiPhones
         }
         private void SetMemory()
         {
-            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Memory?.Internal)) return;
-            int? internalMemory = null;
-            int? readOnlyMemory = null;
-            int multiplier = 1;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Memory?.Internal))
+            {
+                int? internalMemory = null;
+                int? readOnlyMemory = null;
+                int multiplier = 1;
 
-            var match = Regex.Match(inputPhone.Detail.Memory.Internal, @"^(?:\d*\/)*(?:\d+ ?[KMG]B ram[,;] )?(?:(\d+\.?[\d]*) ?([KMGT])B(?! ram| flash| rom))?", RegexOptions.IgnoreCase);
-            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
-            {
-                var rawMemory = "";
-                var unit = "";
-                rawMemory = match.Groups[1].Value;
-                unit = match.Groups[2].Value.ToUpperInvariant();
-                multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
-                internalMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
-                internalMemory *= multiplier;
+                var match = Regex.Match(inputPhone.Detail.Memory.Internal, @"^(?:\d*\/)*(?:\d+ ?[KMG]B ram[,;] )?(?:(\d+\.?[\d]*) ?([KMGT])B(?! ram| flash| rom))?", RegexOptions.IgnoreCase);
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                {
+                    var rawMemory = "";
+                    var unit = "";
+                    rawMemory = match.Groups[1].Value;
+                    unit = match.Groups[2].Value.ToUpperInvariant();
+                    multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
+                    internalMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
+                    internalMemory *= multiplier;
+                }
+                match = Regex.Match(inputPhone.Detail.Memory.Internal, @"(\d+\.?[\d]*) ?([KMGT])B ROM", RegexOptions.IgnoreCase);
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                {
+                    var rawMemory = "";
+                    var unit = "";
+                    rawMemory = match.Groups[1].Value;
+                    unit = match.Groups[2].Value;
+                    multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
+                    readOnlyMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
+                    readOnlyMemory *= multiplier;
+                }
+                resultPhone.MemoryInternal = internalMemory;
+                resultPhone.MemoryReadOnly = readOnlyMemory;
             }
-            match = Regex.Match(inputPhone.Detail.Memory.Internal, @"(\d+\.?[\d]*) ?([KMGT])B ROM", RegexOptions.IgnoreCase);
-            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Memory?.CardSlot))
             {
-                var rawMemory = "";
-                var unit = "";
-                rawMemory = match.Groups[1].Value;
-                unit = match.Groups[2].Value;
-                multiplier = unit == "K" ? 1 : (unit == "M" ? 1024 : (unit == "G" ? 1048576 : 1073741824));
-                readOnlyMemory = int.TryParse(rawMemory, out int result) ? result : default(int?);
-                readOnlyMemory *= multiplier;
+                var match = Regex.Match(inputPhone.Detail.Memory.CardSlot, @"^(?:(memory stick(?: (?:duo(?: pro)?|micro))?|microsd|micrommc|\bmicro\b|minisd|mmc-micro|mmc|nm|rs-mmc|rs-dv-mmc|sdio|sd|yes|no))(?:\/(memory stick(?: (?:duo(?: pro)?|micro))?|microsd|micrommc|\bmicro\b|minisd|mmc-micro|mmc|nm|rs-mmc|rs-dv-mmc|sdio|sd|yes|no))?(?:.*?up to (\d+) ?([mgt])b)?", RegexOptions.IgnoreCase);
+                string cardType = null;
+                var multiplier = 1;
+                int? maxSize = null;
+                string unit = "";
+                if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    cardType = match.Groups[1].Value;
+                if (cardType != null && !string.IsNullOrWhiteSpace(match.Groups[2].Value))
+                    cardType += "/" + match.Groups[2].Value;
+                if (!string.IsNullOrWhiteSpace(match.Groups[3].Value + match.Groups[4].Value) && int.TryParse(match.Groups[3].Value, out var result))
+                {
+                    unit = match.Groups[4].Value.ToLowerInvariant();
+                    multiplier = unit == "m" ? 1 : (unit == "g" ? 1024 : 1048576);
+                    maxSize = result * multiplier;
+                }
+                resultPhone.MemoryCardType = cardType;
+                resultPhone.MemoryCardMaxSize = maxSize;
             }
-            resultPhone.MemoryInternal = internalMemory;
-            resultPhone.MemoryReadOnly = readOnlyMemory;
             // resultPhone.MemoryInternal = $"{rawInternalMemory} {rawInternalMemoryUnit}, {rawReadOnlyMemory} {rawReadOnlyMemoryUnit}";
         }
         private void SetSimCard()
@@ -377,8 +594,10 @@ namespace ArktiPhones
 
         private void SetComms()
         {
-            resultPhone.Bluetooth = Regex.Match(inputPhone.Detail.Comms.Bluetooth, @"^[v\.]*((?:\d+.[\dx]+|Yes|yes))").Groups[1].Value;
+            string bluetooth = Regex.Match(inputPhone.Detail.Comms.Bluetooth, @"^[v\.]*((?:\d+.[\dx]+|Yes|yes|no|No))").Groups[1].Value;
+            resultPhone.Bluetooth = string.IsNullOrWhiteSpace(bluetooth) ? null : bluetooth.ToLowerInvariant();
             resultPhone.Infrared = inputPhone.Detail.Comms.InfraredPort?.ToLowerInvariant().Contains("yes") == true;
+            resultPhone.Nfc = inputPhone.Detail.Comms.Nfc?.ToLowerInvariant().Contains("yes") == true;
         }
 
         public void SetBattery()

@@ -23,13 +23,17 @@ public class PhoneDetails
     public string MaterialBody { get; set; }
     public List<string> SimCards { get; set; }
     public double? Weight { get; set; }
-    public string Gps { get; set; }// WAITING
+    public bool? Gps { get; set; }
+    public List<string> GpsFeatures { get; set; }
     public string UsbVersion { get; set; }
     public string UsbConnector { get; set; }
     public List<string> UsbFeatures { get; set; }
-    public string Wlan { get; set; }// WAITING
+    public bool? Wlan { get; set; }
+    public List<string> WlanStandards { get; set; }
+    public List<string> WlanFeatures { get; set; }
     public string Bluetooth { get; set; }
     public bool Infrared { get; set; }
+    public bool Nfc { get; set; }
     public int? ResolutionWidth { get; set; }
     public int? ResolutionHeight { get; set; }
     public int? ResolutionLines { get; set; }
@@ -39,14 +43,21 @@ public class PhoneDetails
     public double? DisplaySize { get; set; }
     public double? DisplayArea { get; set; }
     public double? ScreenToBodyRatio { get; set; }
-    public string DisplayType { get; set; }// WAITING
-    public string Sensors { get; set; }// WAITING
-    public string Status { get; set; }// WAITING
-    public string MemoryCard { get; set; }// WAITING
-    public int? MemoryInternal { get; set; }// WAITING
-    public int? MemoryReadOnly { get; set; }// WAITING
+    public string DisplayType { get; set; }
+    public string DisplayColorMode { get; set; }
+    public int? DisplayColors { get; set; }
+    public int? DisplayEffectiveColors { get; set; }
+    public string Touchscreen { get; set; }
+    public double? PhotoResolution { get; set; }
+    public int? VideoResolution { get; set; }
+    public List<string> Sensors { get; set; }
+    public string Status { get; set; }
+    public string MemoryCardType { get; set; }
+    public int? MemoryCardMaxSize { get; set; }
+    public int? MemoryInternal { get; set; }
+    public int? MemoryReadOnly { get; set; }
     public int? RamInMb { get; set; }
-    public string Colors { get; set; }// WAITING
+    public List<string> Colors { get; set; }
     public double? EstimatedPriceInEuro { get; set; }
     public double? Price { get; set; }
     public string PriceCurrency { get; set; }
@@ -55,11 +66,12 @@ public class PhoneDetails
     public string OperatingSystemLatestVersion { get; set; }
     public string OperatingSystemFlavorName { get; set; }
     public string OperatingSystemFlavorVersion { get; set; }
-    public string ExpansionChipset { get; set; }// WAITING
-    public string Chipset { get; set; }// WAITING
-    public string Cpu { get; set; }// WAITING
+    public string CpuManufacturer { get; set; }// WAITING
+    public string CpuName { get; set; }// WAITING
+    public string CpuSeries { get; set; }// WAITING
+    public string CpuModel { get; set; }// WAITING
     public string Gpu { get; set; }// WAITING
-    public string AudioMiniJack { get; set; }// WAITING
+    public bool? AudioJack { get; set; }
     public string DeviceType { get; set; }
     public string ImageUrl { get; set; }
     public string NetworkTechnology { get; set; }// WAITING

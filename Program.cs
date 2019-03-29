@@ -18,7 +18,7 @@ namespace ArktiPhones
             var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .GroupBy(ph => ph.Detail.Tests?.BatteryLife)
+                .GroupBy(ph => ph.Overview.Expansion.Chipset)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
@@ -38,14 +38,14 @@ namespace ArktiPhones
                     }
                 }
                 var distinctRemodeledValuesCount = remodeledPhones
-                    .GroupBy(ph => ph.BatteryEndurance)
+                    .GroupBy(ph => ph.Status)
                     .OrderByDescending(p => p.Key)
                     .Select(p =>
                     {
                         var query = from selectedPhone in p
                                     join originalPhone in inputPhonesProcessed
                                     on selectedPhone.PhoneId equals originalPhone.PhoneId
-                                    select originalPhone.Detail.Tests?.BatteryLife;
+                                    select originalPhone.Detail.Launch.Status;
                         return new
                         {
                             Key = $"{p.Key} (x{query.Count()})",
@@ -54,21 +54,23 @@ namespace ArktiPhones
                     })
                     // .OrderByDescending(b => b.Key)
                     .ToList();
+                System.IO.File.WriteAllText(Path.Combine("Results", "CombinedUniqueResults"),
+                    JsonConvert.SerializeObject(inputPhonesProcessed.Where(p => p.Detail.Features?.Sensors != null).SelectMany(p => p.Detail.Features.Sensors.Split(',')).Select(p => p.Trim().ToLowerInvariant()).Distinct().OrderBy(p => p), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate), Formatting.Indented));
+                JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "TestRemodeledResult.json"),
                     JsonConvert.SerializeObject(distinctRemodeledValuesCount, Formatting.Indented));
             }
 
 
-            System.IO.File.WriteAllText(Path.Combine("Results", "TestRawResult.json"),
-                JsonConvert.SerializeObject(distinctRawValuesCount, Formatting.Indented));
+            // System.IO.File.WriteAllText(Path.Combine("Results", "TestRawResult.json"),
+            //     JsonConvert.SerializeObject(distinctRawValuesCount, Formatting.Indented));
             System.IO.File.WriteAllLines(Path.Combine("Results", "TestRawResult.txt"), distinctRawValuesCount.Select(p => p.Value));
 
-            var distinctResult = inputPhonesProcessed.Select(p => p.Detail.Tests?.BatteryLife)/* .Select(p => p?.ElementAtOrDefault(1)) */.Distinct().OrderByDescending(v => v);
-            System.IO.File.WriteAllLines(Path.Combine("Results", "DistinctResult.txt"), distinctResult);
-            System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
-                JsonConvert.SerializeObject(distinctResult, Formatting.Indented));
+            // var distinctResult = inputPhonesProcessed.Select(p => p.Overview.Camera?.Photo)/* .Select(p => p?.ElementAtOrDefault(1)) */.Distinct().OrderByDescending(v => v);
+            // System.IO.File.WriteAllLines(Path.Combine("Results", "DistinctResult.txt"), distinctResult);
+            // System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
+            //     JsonConvert.SerializeObject(distinctResult, Formatting.Indented));
 
 
             System.IO.File.WriteAllText(Path.Combine("Results", "InputPhonesProcessed.json"),
