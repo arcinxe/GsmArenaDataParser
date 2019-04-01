@@ -66,11 +66,12 @@ public class PhoneDetails
     public string OperatingSystemLatestVersion { get; set; }
     public string OperatingSystemFlavorName { get; set; }
     public string OperatingSystemFlavorVersion { get; set; }
-    public string CpuManufacturer { get; set; }// WAITING
-    public string CpuName { get; set; }// WAITING
-    public string CpuSeries { get; set; }// WAITING
-    public string CpuModel { get; set; }// WAITING
-    public string Gpu { get; set; }// WAITING
+    public string CpuProducer { get; set; }
+    public string CpuName { get; set; }
+    public string CpuSeries { get; set; }
+    public string CpuModel { get; set; }
+    public string GpuName { get; set; }
+    public string GpuModel { get; set; }
     public bool? AudioJack { get; set; }
     public string DeviceType { get; set; }
     public string ImageUrl { get; set; }

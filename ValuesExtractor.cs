@@ -49,18 +49,94 @@ namespace ArktiPhones
             SetAudioJack();
             SetWlan();
             SetCpu();
+            SetGpu();
         }
 
+        private void SetGpu()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.Platform?.Gpu)) return;
+            var match = Regex.Match(inputPhone.Detail.Platform.Gpu, @"^([a-zA-Z]+(?: geforce)?)(?:[ -]((?:(?!adreno|vivante|mali|powervr|gpu|hd graphics|graphics)[\w ])*))?", RegexOptions.IgnoreCase);
+            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                resultPhone.GpuName = match.Groups[1].Value;
+            if (!string.IsNullOrWhiteSpace(match.Groups[2].Value))
+                resultPhone.GpuModel = match.Groups[2].Value;
+        }
         private void SetCpu()
         {
             if (string.IsNullOrWhiteSpace(inputPhone.Overview.Expansion?.Chipset)) return;
             var match = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:([Аa-zA-Z-]{2,})\b)?(?: (?:([a-zA-Z]{3,})\b))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?");
             string name = null;
             string series = null;
-            string manufacturer = null;
+            string producer = null;
             string model = null;
             if (match.Success)
             {
+                if (match.Groups[1].Value.Equals("apple", StringComparison.OrdinalIgnoreCase))
+                {
+                    producer = "Apple";
+                    series = match.Groups[3].Value.FirstOrDefault().ToString();
+                    model = "Apple " + match.Groups[3].Value;
+                    if (!string.IsNullOrWhiteSpace(match.Groups[4].Value))
+                        model += $" {match.Groups[4].Value}";
+                }
+                else if (match.Groups[1].Value.Equals("exynos", StringComparison.OrdinalIgnoreCase))
+                {
+                    producer = "Samsung";
+                    name = "Exynos";
+                    model = string.IsNullOrWhiteSpace(match.Groups[4].Value)
+                        ? match.Groups[3].Value
+                        : match.Groups[3].Value + " " + match.Groups[4].Value;
+                }
+                else if (match.Groups[1].Value.Equals("helio", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"mt\w+", RegexOptions.IgnoreCase))
+                {
+                    var mediatekMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:mediatek)?(?: ?(?:(mt[\w+-]+)))?(?: or.*)?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?", RegexOptions.IgnoreCase);
+                    producer = "Mediatek";
+                    model = string.IsNullOrWhiteSpace(mediatekMatch.Groups[1].Value) ? null : mediatekMatch.Groups[1].Value;
+                    model = model != null ? model : (string.IsNullOrWhiteSpace(mediatekMatch.Groups[3].Value) ? null : mediatekMatch.Groups[3].Value);
+                    name = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value)
+                        ? null
+                        : $"{mediatekMatch.Groups[2].Value} {mediatekMatch.Groups[3]}".Trim();
+                    series = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value) ? null : mediatekMatch.Groups[2].Value;
+                }
+                else if (match.Groups[1].Value.Equals("hisilicon", StringComparison.OrdinalIgnoreCase) || match.Groups[1].Value.Equals("huawei", StringComparison.OrdinalIgnoreCase))
+                {
+                    producer = "HiSilicon";
+                    series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
+                    model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+                }
+                else if (match.Groups[1].Value.Equals("intel", StringComparison.OrdinalIgnoreCase))
+                {
+                    producer = "Intel";
+                    series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
+                    model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+                }
+                else if (Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm|apq|esc|esm|msm|qsc)", RegexOptions.IgnoreCase))
+                {
+                    var qualcommMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm)?(?: ?(?:((?:[\w+-]+ ?){0,2})))?", RegexOptions.IgnoreCase);
+                    producer = "Qualcomm";
+                    name = inputPhone.Overview.Expansion.Chipset.Contains("snapdragon", StringComparison.OrdinalIgnoreCase) ? "Snapdragon" : null;
+                    model = string.IsNullOrWhiteSpace(qualcommMatch.Groups[1].Value) ? null : qualcommMatch.Groups[1].Value.Trim();
+                }
+                else if (match.Groups[1].Value.Contains("spreadtrum", StringComparison.OrdinalIgnoreCase))
+                {
+                    producer = "Spreadtrum";
+                    model = !string.IsNullOrWhiteSpace(match.Groups[3].Value)
+                        ? match.Groups[3].Value
+                        : (!string.IsNullOrWhiteSpace(match.Groups[2].Value) ? match.Groups[2].Value : null);
+                }
+                else if (match.Groups[1].Value.Equals("nvidia", StringComparison.OrdinalIgnoreCase))
+                {
+                    var nvidiaMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^nvidia (?:([a-zA-Z]+\b) ?)?(?:([\w]{1,3}\b) ?)?(?:([\w ]+\b) ?)?", RegexOptions.IgnoreCase);
+                    producer = "NVIDIA";
+                    series = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[1].Value) ? null : nvidiaMatch.Groups[1].Value;
+                    model = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[3].Value) ? null : nvidiaMatch.Groups[3].Value;
+
+                }
+
+                resultPhone.CpuModel = model;
+                resultPhone.CpuName = name;
+                resultPhone.CpuProducer = producer;
+                resultPhone.CpuSeries = series;
             }
 
         }
