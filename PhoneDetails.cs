@@ -10,9 +10,6 @@ public class PhoneDetails
     public int? BatteryCapacity { get; set; }
     public string BatteryTechnology { get; set; }
     public int? BatteryEndurance { get; set; }
-    public string BatteryStandby { get; set; }// WAITING
-    public string BatteryTalk { get; set; }// WAITING
-    public string BatteryMusic { get; set; }// WAITING
     public double? BodyWidth { get; set; }
     public double? BodyHeight { get; set; }
     public double? BodyThickness { get; set; }
@@ -50,6 +47,10 @@ public class PhoneDetails
     public string Touchscreen { get; set; }
     public double? PhotoResolution { get; set; }
     public int? VideoResolution { get; set; }
+    public List<VideoMode> VideoModes { get; set; }
+    public List<string> VideoFeatures { get; set; }
+    public int? CameraLeds { get; set; }
+    public List<string> CameraFeatures { get; set; }
     public List<string> Sensors { get; set; }
     public string Status { get; set; }
     public string MemoryCardType { get; set; }
@@ -89,4 +90,13 @@ class Camera
 
     public string Type { get; set; }// WAITING
     public double? Resolution { get; set; }// WAITING
+}
+
+public class VideoMode
+{
+    public int? Width { get; set; }
+    public int? Height { get; set; }
+    public int? FrameRate { get; set; }
+    public string CameraSide { get; set; }
+
 }

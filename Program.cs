@@ -12,13 +12,20 @@ namespace ArktiPhones
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("STUFF STARTED!");
             var startTime = DateTime.Now;
+            System.Console.WriteLine($"Started at {startTime}");
             var file = System.IO.File.ReadAllText(Path.Combine("Results", "AllPhonesDetails.json"));
-            var inputPhonesProcessed = JsonConvert.DeserializeObject<List<AllPhonesDetails>>(file).Select(p => p.Data).ToList();
+            var inputPhonesProcessed = JsonConvert
+                .DeserializeObject<List<AllPhonesDetails>>(file)
+                .Where(p => p?.Data != null)
+                .Select(p => p.Data)
+                .ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .GroupBy(ph => ph.Overview.Expansion.Chipset)
+                // .Where(p => p.Detail.MainCamera?.Features != null)
+                // .SelectMany(p => p.Detail.MainCamera?.Features.Split(','))
+                // .GroupBy(ph => ph.Trim())
+                .GroupBy(ph => ph.Detail.Sound?.Loudspeaker)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
@@ -77,8 +84,7 @@ namespace ArktiPhones
                 JsonConvert.SerializeObject(inputPhonesProcessed, Formatting.Indented));
 
             System.Console.WriteLine($"gud: {inputPhonesProcessed.Count()} devices");
-            var endTime = DateTime.Now - startTime;
-            System.Console.WriteLine($"DONE IN: ~{endTime:mm\\m\\:ss\\s\\:fff\\m\\s}!");
+            System.Console.WriteLine($"Done in ~{(DateTime.Now - startTime):mm\\m\\:ss\\s\\:fff\\m\\s}!");
         }
     }
 }

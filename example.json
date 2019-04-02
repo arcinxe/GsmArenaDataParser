@@ -23,7 +23,7 @@
     },
     "expansion": {
       "ram": "8GB RAM",
-      "chipset": "Exynos 9820 Octa" // WAITING
+      "chipset": "Exynos 9820 Octa"
     },
     "battery": {
       "capacity": "3400mAh",
@@ -60,7 +60,7 @@
     "display": {
       "resolution": "1440 x 3040 pixels, 19:9 ratio (~550 ppi density)",
       "size": "6.1 inches, 93.2 cm2 (~88.3% screen-to-body ratio)",
-      "type": "Dynamic AMOLED capacitive touchscreen, 16M colors", // WAITING
+      "type": "Dynamic AMOLED capacitive touchscreen, 16M colors", 
       "protection": "Corning Gorilla Glass 6", // WAITING
       "": [
         "HDR10+", // WAITING
@@ -68,7 +68,7 @@
       ]
     },
     "features": {
-      "sensors": "Fingerprint (under display), accelerometer, gyro, proximity, compass, barometer, heart rate, SpO2", // WAITING
+      "sensors": "Fingerprint (under display), accelerometer, gyro, proximity, compass, barometer, heart rate, SpO2",
       "sensorz": [
         "accelerometer",
         "altmeter",
@@ -98,10 +98,10 @@
       "announced": "2019, February",
       "status": "Available. Released 2019, March"
     },
-    "main__camera": { // WAITING
+    "main__camera": {
       "video": "2160p@60fps, 1080p@240fps, 720p@960fps, HDR, dual-video rec.",
       "features": "LED flash, auto-HDR, panorama",
-      "triple": [
+      "triple": [ // WAITING
         "12 MP, f/1.5-2.4, 26mm (wide), 1/2.55\", 1.4m, Dual Pixel PDAF, OIS",
         "12 MP, f/2.4, 52mm (telephoto), 1/3.6\", 1.0m, AF, OIS, 2x optical zoom",
         "16 MP, f/2.2, 12mm (ultrawide), 1.0m"
@@ -134,20 +134,20 @@
       "speed": "HSPA 42.2/5.76 Mbps, LTE-A (7CA) Cat20 2000/150 Mbps"
     },
     "platform": {
-      "chipset": "Exynos 9820 Octa (8 nm) - EMEAQualcomm SDM855 Snapdragon 855 (7 nm) - USA/LATAM, China", // WAITING
+      "chipset": "Exynos 9820 Octa (8 nm) - EMEAQualcomm SDM855 Snapdragon 855 (7 nm) - USA/LATAM, China", 
       "cpu": "Octa-core (2x2.73 GHz Mongoose M4 & 2x2.31 GHz Cortex-A75 & 4x1.95 GHz Cortex-A55) - EMEAOcta-core (1x2.84 GHz Kryo 485 & 3x2.41 GHz Kryo 485 & 4x1.78 GHz Kryo 485) - USA/LATAM, China", // WAITING
       "os": "Android 9.0 (Pie); One UI",
-      "gpu": "Mali-G76 MP12 - EMEA Adreno 640 - USA/LATAM, China" // WAITING
+      "gpu": "Mali-G76 MP12 - EMEA Adreno 640 - USA/LATAM, China"
     },
-    "selfie_camera": { // WAITING
-      "single": [
+    "selfie_camera": {
+      "single": [ // WAITING
         "10 MP, f/1.9, 26mm (wide), 1.22m, Dual Pixel PDAF"
       ],
       "video": "2160p@30fps, 1080p@30fps", // WAITING
       "features": "Dual video call, Auto-HDR" // WAITING
     },
     "sound": {
-      "3_5mm_jack": "Yes", // WAITING
+      "3_5mm_jack": "Yes",
       "loudspeaker": "Yes, with stereo speakers", // WAITING
       "": [
         "32-bit/384kHz audio",

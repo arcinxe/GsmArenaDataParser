@@ -50,8 +50,190 @@ namespace ArktiPhones
             SetWlan();
             SetCpu();
             SetGpu();
+            SetCameraVideoModes();
+            SetCameraFeatures();
         }
 
+        private void SetCameraFeatures()
+        {
+            var features = new List<string>();
+            int? leds = null;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Features))
+            {
+                foreach (var value in inputPhone.Detail.MainCamera.Features.Split(',').Select(f => f.Trim()))
+                {
+                    var match = Regex.Match(value, @"^(?:((?:(?:carl )?zeiss(?: tessar)?)|leica|Schneider[ -]Kreuznach)(?: lens| optics)?)?(?:(xenon|strobe)(?: flash)?(?: &| and)? ?)?(?:((?:dual|tripp?le|3|quad|six|ten)?-?led) ?(rgb|dual[ -]tone)?)?", RegexOptions.IgnoreCase);
+                    if (match.Groups[1].Success)
+                        features.Add(match.Groups[1].Value + " optics");
+                    if (match.Groups[2].Success)
+                        features.Add("xenon");
+                    if (match.Groups[4].Success)
+                        features.Add(match.Groups[4].Value.ToLowerInvariant() == "rgb" ? "RGB LEDs" : "dual-tone LEDs");
+
+                    switch (match.Groups[3].Value.ToLowerInvariant())
+                    {
+                        case "flash":
+                        case "led":
+                            leds = 1;
+                            break;
+                        case "dual-led":
+                            leds = 2;
+                            break;
+                        case "triple-led":
+                        case "tripple-led":
+                        case "3led":
+                            leds = 3;
+                            break;
+                        case "quad-led":
+                            leds = 4;
+                            break;
+                        case "six-led":
+                            leds = 6;
+                            break;
+                        case "ten-led":
+                            leds = 10;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (inputPhone.Detail.MainCamera.Features.Contains("depth & motion tracking", StringComparison.OrdinalIgnoreCase))
+                    features.Add("depth & motion tracking");
+                if (inputPhone.Detail.MainCamera.Features.Contains("hdr", StringComparison.OrdinalIgnoreCase))
+                    features.Add("HDR");
+                if (inputPhone.Detail.MainCamera.Features.Contains("rotating lens", StringComparison.OrdinalIgnoreCase))
+                    features.Add("rotating lens");
+                if (inputPhone.Detail.MainCamera.Features.Contains("panorama", StringComparison.OrdinalIgnoreCase))
+                    features.Add("panorama");
+                if (inputPhone.Detail.MainCamera.Features.Contains("thermal imaging", StringComparison.OrdinalIgnoreCase))
+                    features.Add("thermal imaging");
+            }
+            resultPhone.CameraLeds = leds;
+
+            resultPhone.CameraFeatures = features;
+        }
+        private void SetCameraVideoModes()
+        {
+            if (string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Video) && string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Video)) return;
+
+            var videoModes = new List<VideoMode>();
+            var features = new List<string>();
+            for (var j = 0; j < 2; j++)
+            {
+                var sides = new List<string[]>();
+                sides.Add(string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Video) ? new string[] { } : inputPhone.Detail.MainCamera.Video.Split(','));
+                sides.Add(string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Video) ? new string[] { } : inputPhone.Detail.SelfieCamera.Video.Split(','));
+
+                foreach (var value in sides[j])
+                {
+                    var match = Regex.Match(value, @"^ ?(?:(cif|qcif|scif|sqcif|svga|vga|yes|no)?(?:(\d+)x(\d+))?(?:w?([\d\/p]+(?!\d*fps|x|\d*-)))?(?:@?([\d\/~-]+)f?ps)?)", RegexOptions.IgnoreCase);
+
+                    var widths = new List<int?>();
+                    var heights = new List<int?>();
+                    int?[] frameRates = null;
+                    if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
+                    {
+                        switch (match.Groups[1].Value.ToLowerInvariant())
+                        {
+                            case "cif":
+                                widths.Add(352);
+                                heights.Add(288);
+                                break;
+                            case "qcif":
+                                widths.Add(176);
+                                heights.Add(144);
+                                break;
+                            case "sqcif":
+                                widths.Add(128);
+                                heights.Add(96);
+                                break;
+                            case "vga":
+                                widths.Add(640);
+                                heights.Add(480);
+                                break;
+                            case "svga":
+                                widths.Add(800);
+                                heights.Add(600);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(match.Groups[2].Value + match.Groups[3].Value))
+                    {
+                        widths.Add(int.Parse(match.Groups[2].Value));
+                        heights.Add(int.Parse(match.Groups[3].Value));
+                    }
+                    else if (!string.IsNullOrWhiteSpace(match.Groups[4].Value))
+                    {
+                        foreach (var resolution in match.Groups[4].Value.Replace("p", "").Split('/'))
+                        {
+                            switch (resolution)
+                            {
+                                case "480":
+                                    widths.Add(640);
+                                    heights.Add(480);
+                                    break;
+
+                                case "720":
+                                    widths.Add(1280);
+                                    heights.Add(720);
+                                    break;
+
+                                case "1080":
+                                    widths.Add(1920);
+                                    heights.Add(1080);
+                                    break;
+                                case "2160":
+                                    widths.Add(3840);
+                                    heights.Add(2160);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                    }
+
+                    if (string.IsNullOrWhiteSpace(match.Groups[5].Value))
+                    {
+                        for (var i = 0; i < heights.Count(); i++)
+                            videoModes.Add(new VideoMode { Width = widths[i], Height = heights[i], CameraSide = j == 0 ? "rear" : "front" });
+                    }
+                    else
+                    {
+                        frameRates = match.Groups[5].Value
+                            .Split('/')
+                            .Select(f => (int?)int.Parse(f.Split('-').LastOrDefault().Split('~').LastOrDefault())
+                            ).ToArray();
+                        foreach (var frameRate in frameRates)
+                        {
+                            for (var i = 0; i < heights.Count(); i++)
+                                videoModes.Add(new VideoMode { Width = widths[i], Height = heights[i], CameraSide = j == 0 ? "rear" : "front", FrameRate = frameRate });
+                        }
+                    }
+
+
+                }
+            }
+
+            if (inputPhone.Detail.MainCamera.Video.Contains("stereo sound rec", StringComparison.OrdinalIgnoreCase))
+                features.Add("stereo sound recording");
+            if (inputPhone.Detail.MainCamera.Video.Contains("gyro-EIS", StringComparison.OrdinalIgnoreCase))
+                features.Add("gyro-EIS");
+            if (inputPhone.Detail.MainCamera.Video.Contains("4x lossless digital zoom", StringComparison.OrdinalIgnoreCase))
+                features.Add("4x lossless digital zoom");
+            if (inputPhone.Detail.MainCamera.Video.Contains("HDR", StringComparison.OrdinalIgnoreCase))
+                features.Add("HDR");
+            if (inputPhone.Detail.MainCamera.Video.Contains("dual video recording", StringComparison.OrdinalIgnoreCase) || inputPhone.Detail.MainCamera.Video.Contains("dual-video rec", StringComparison.OrdinalIgnoreCase))
+                features.Add("dual video recording");
+
+
+
+
+            resultPhone.VideoModes = videoModes;
+            resultPhone.VideoFeatures = features;
+        }
         private void SetGpu()
         {
             if (string.IsNullOrWhiteSpace(inputPhone.Detail.Platform?.Gpu)) return;
