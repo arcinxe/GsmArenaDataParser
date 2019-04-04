@@ -7,6 +7,9 @@ public class PhoneDetails
     public string Slug { get; set; }
     public string Brand { get; set; }
     public string Name { get; set; }
+    public DateTime AnnouncedDate { get; set; }
+    public DateTime ReleasedDate { get; set; }
+    public string Status { get; set; }
     public int? BatteryCapacity { get; set; }
     public string BatteryTechnology { get; set; }
     public int? BatteryEndurance { get; set; }
@@ -52,7 +55,6 @@ public class PhoneDetails
     public int? CameraLeds { get; set; }
     public List<string> CameraFeatures { get; set; }
     public List<string> Sensors { get; set; }
-    public string Status { get; set; }
     public string MemoryCardType { get; set; }
     public int? MemoryCardMaxSize { get; set; }
     public int? MemoryInternal { get; set; }
@@ -71,6 +73,7 @@ public class PhoneDetails
     public string CpuName { get; set; }
     public string CpuSeries { get; set; }
     public string CpuModel { get; set; }
+    public int? CpuCores { get; set; }
     public string GpuName { get; set; }
     public string GpuModel { get; set; }
     public bool? AudioJack { get; set; }
@@ -78,18 +81,20 @@ public class PhoneDetails
     public string ImageUrl { get; set; }
     public string NetworkTechnology { get; set; }// WAITING
     public string NetworkSpeed { get; set; }// WAITING
-    public DateTime AnnouncedDate { get; set; }
-    public DateTime ReleasedDate { get; set; }
+    public List<Camera> Cameras { get; set; }
+    public string CameraOriginalText { get; set; }
     public string Test { get; set; }
 }
 
-class Camera
+public class Camera
 {
-    public int CameraId { get; set; }// WAITING
-    public int PhoneId { get; set; }// WAITING
-
-    public string Type { get; set; }// WAITING
-    public double? Resolution { get; set; }// WAITING
+    public string Location { get; set; }// WAITING
+    public double? Resolution { get; set; }
+    public int? OpticalZoom { get; set; }
+    public double? SensorSize { get; set; }  // 1/x.xx"
+    public double? FocalLength { get; set; }  // x.xx mm
+    public double? Aperture { get; set; }  // f/x.xx
+    public List<string> Features { get; set; }
 }
 
 public class VideoMode

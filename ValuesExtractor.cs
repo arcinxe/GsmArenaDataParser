@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ArktiPhones.Extensions;
 
 namespace ArktiPhones
 {
@@ -24,6 +25,7 @@ namespace ArktiPhones
             resultPhone.ImageUrl = inputPhone.ImageUrl.ToString();
             resultPhone.Brand = inputPhone.Brand;
             resultPhone.BatteryTechnology = inputPhone.Overview.Battery.Technology;
+            Debug();
             SetDeviceType();
             SetComms();
             SetDates();
@@ -52,8 +54,119 @@ namespace ArktiPhones
             SetGpu();
             SetCameraVideoModes();
             SetCameraFeatures();
+            SetCameras();
+            // SetSingleCamera();
+            // SetDualCamera();
         }
 
+        private void SetCameras()
+        {
+            var cameras = new List<Camera>();
+            resultPhone.Cameras = cameras;
+
+            var data = new List<string>();
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Single?.FirstOrDefault()))
+                data = inputPhone.Detail.MainCamera?.Single;
+            else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Dual?.FirstOrDefault()))
+                data = inputPhone.Detail.MainCamera?.Dual;
+            else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Triple?.FirstOrDefault()))
+                data = inputPhone.Detail.MainCamera?.Triple;
+            else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Quad?.FirstOrDefault()))
+                data = inputPhone.Detail.MainCamera?.Quad;
+            else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Five?.FirstOrDefault()))
+                data = inputPhone.Detail.MainCamera?.Five;
+            else
+                return;
+
+
+            var rawCameras = string
+                .Join("|", data)
+                .Split("|or", StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault()
+                .Split('|')
+                .Select(v => v.Split(',').Select(sv => sv.Trim()));
+            // if (inputPhone.Slug == "nokia_9_pureview-8867")
+            //     System.Console.WriteLine();
+            var additionalFeatures = new Dictionary<string, int?>();
+            foreach (var rawCamera in rawCameras)
+            {
+                double? megapixels = null;
+                int? zoom = null;
+                double? sensorSize = null;
+                double? focalLength = null;
+                double? aperture = null;
+                var camerasAmount = 1;
+                var features = new List<string>();
+                foreach (var value in rawCamera)
+                {
+                    var match = Regex.Match(value, @"^(?:([sq]?vga|cif|yes))?(?:(?:(\d)x )?(?:motorized pop-up )?(\d+(?:\.\d*)?) mp)?(?: (b\/w))?(?:(\d+\.?\d*) ?mm?\b)?(?:\d\/(\d(?:\.\d+)?)""?)?(?: ?\((ultra ?wide|wide|standard|telephoto)\)?)?(?:(\d+\.?\d*)(?:x|kh) (?:optical|lossless)? ?zoom)?(?:f\/?(\d\.\d+))?", RegexOptions.IgnoreCase);
+                    if (match.Groups[1].Success)
+                        megapixels = Converters.ConvertNameToResolution(match.Groups[1].Value).Megapixels;
+                    else if (match.Groups[3].Success)
+                        megapixels = match.Groups[3].Value.ToNullableDouble();
+                    else if (match.Groups[5].Success)
+                        focalLength = match.Groups[5].Value.ToNullableDouble();
+                    else if (match.Groups[6].Success)
+                        sensorSize = match.Groups[6].Value.ToNullableDouble();
+                    else if (match.Groups[8].Success)
+                        zoom = match.Groups[8].Value.ToNullableInt();
+                    else if (match.Groups[9].Success)
+                        aperture = match.Groups[9].Value.ToNullableDouble();
+                    if (match.Groups[4].Success)
+                        features.Add($"{match.Groups[4].Value.ToUpperInvariant()} color");
+                    if (match.Groups[7].Success)
+                        features.Add($"{match.Groups[7].Value.ToLowerInvariant()} lens");
+                    if (match.Groups[2].Success && int.TryParse(match.Groups[2].Value, out var result))
+                        camerasAmount = result;
+
+                    match = Regex.Match(value, @"^((?:predictive )?dual pixel pdaf|(?:no )?af|motorized pop-up|flir thermal camera|TOF 3D|tof|depth(?: & motion tracking)? sensors?|(?:\d-axis )?ois|pdaf|predictive pdaf|laser af|laser)?(?:(?: & |\/)?(laser af|pdaf))?(?:\(?(\d)x (?:(rgb|b\/w)) & (\d)x (?:(rgb|b\/w)))?", RegexOptions.IgnoreCase);
+                    if (match.Groups[1].Success)
+                        features.Add(match.Groups[1].Value.ToLowerInvariant());
+                    if (match.Groups[2].Success)
+                        features.Add(match.Groups[2].Value.ToLowerInvariant());
+                    if (match.Groups[3].Success && match.Groups[4].Success && int.TryParse(match.Groups[3].Value, out result))
+                        additionalFeatures.Add(match.Groups[4].Value.ToUpperInvariant(), match.Groups[3].Value.ToNullableInt());
+                    if (match.Groups[5].Success && match.Groups[6].Success && int.TryParse(match.Groups[5].Value, out result))
+                        additionalFeatures.Add(match.Groups[6].Value.ToUpperInvariant(), match.Groups[5].Value.ToNullableInt());
+
+                }
+
+
+                for (var i = 0; i < camerasAmount; i++)
+                    if (aperture != null
+                        || focalLength != null
+                        || zoom != null
+                        || sensorSize != null
+                        || megapixels != null
+                        || features.Count > 0)
+                    {
+                        var individualFeatures = new List<string>(features);
+                        cameras.Add(new Camera
+                        {
+                            Aperture = aperture,
+                            FocalLength = focalLength,
+                            OpticalZoom = zoom,
+                            SensorSize = sensorSize,
+                            Resolution = megapixels,
+                            Location = "rear",
+                            Features = individualFeatures
+                        });
+                    }
+
+            }
+
+            if (additionalFeatures.Count > 0 && cameras.Count >= additionalFeatures.Sum(f => f.Value))
+            {
+                var position = 0;
+                for (var i = 0; i < additionalFeatures.Count; i++)
+                {
+                    for (var j = 0; j < additionalFeatures.ElementAtOrDefault(i).Value; j++)
+                    {
+                        cameras.ElementAtOrDefault(position++).Features.Add(additionalFeatures.ElementAtOrDefault(i).Key);
+                    }
+                }
+            }
+        }
         private void SetCameraFeatures()
         {
             var features = new List<string>();
@@ -133,31 +246,9 @@ namespace ArktiPhones
                     int?[] frameRates = null;
                     if (!string.IsNullOrWhiteSpace(match.Groups[1].Value))
                     {
-                        switch (match.Groups[1].Value.ToLowerInvariant())
-                        {
-                            case "cif":
-                                widths.Add(352);
-                                heights.Add(288);
-                                break;
-                            case "qcif":
-                                widths.Add(176);
-                                heights.Add(144);
-                                break;
-                            case "sqcif":
-                                widths.Add(128);
-                                heights.Add(96);
-                                break;
-                            case "vga":
-                                widths.Add(640);
-                                heights.Add(480);
-                                break;
-                            case "svga":
-                                widths.Add(800);
-                                heights.Add(600);
-                                break;
-                            default:
-                                break;
-                        }
+                        var resolution = Converters.ConvertNameToResolution(match.Groups[1].Value.ToLowerInvariant());
+                        widths.Add(resolution.Width);
+                        heights.Add(resolution.Height);
                     }
                     else if (!string.IsNullOrWhiteSpace(match.Groups[2].Value + match.Groups[3].Value))
                     {
@@ -166,31 +257,11 @@ namespace ArktiPhones
                     }
                     else if (!string.IsNullOrWhiteSpace(match.Groups[4].Value))
                     {
-                        foreach (var resolution in match.Groups[4].Value.Replace("p", "").Split('/'))
+                        foreach (var resolutionName in match.Groups[4].Value.Replace("p", "").Split('/'))
                         {
-                            switch (resolution)
-                            {
-                                case "480":
-                                    widths.Add(640);
-                                    heights.Add(480);
-                                    break;
-
-                                case "720":
-                                    widths.Add(1280);
-                                    heights.Add(720);
-                                    break;
-
-                                case "1080":
-                                    widths.Add(1920);
-                                    heights.Add(1080);
-                                    break;
-                                case "2160":
-                                    widths.Add(3840);
-                                    heights.Add(2160);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            var resolution = Converters.ConvertNameToResolution(resolutionName);
+                            widths.Add(resolution.Width);
+                            heights.Add(resolution.Height);
                         }
 
                     }
@@ -245,80 +316,111 @@ namespace ArktiPhones
         }
         private void SetCpu()
         {
-            if (string.IsNullOrWhiteSpace(inputPhone.Overview.Expansion?.Chipset)) return;
-            var match = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:([Аa-zA-Z-]{2,})\b)?(?: (?:([a-zA-Z]{3,})\b))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?");
-            string name = null;
-            string series = null;
-            string producer = null;
-            string model = null;
-            if (match.Success)
+            if (!string.IsNullOrWhiteSpace(inputPhone.Overview.Expansion?.Chipset))
             {
-                if (match.Groups[1].Value.Equals("apple", StringComparison.OrdinalIgnoreCase))
+                var match = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:([Аa-zA-Z-]{2,})\b)?(?: (?:([a-zA-Z]{3,})\b))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?");
+                string name = null;
+                string series = null;
+                string producer = null;
+                string model = null;
+                if (match.Success)
                 {
-                    producer = "Apple";
-                    series = match.Groups[3].Value.FirstOrDefault().ToString();
-                    model = "Apple " + match.Groups[3].Value;
-                    if (!string.IsNullOrWhiteSpace(match.Groups[4].Value))
-                        model += $" {match.Groups[4].Value}";
-                }
-                else if (match.Groups[1].Value.Equals("exynos", StringComparison.OrdinalIgnoreCase))
-                {
-                    producer = "Samsung";
-                    name = "Exynos";
-                    model = string.IsNullOrWhiteSpace(match.Groups[4].Value)
-                        ? match.Groups[3].Value
-                        : match.Groups[3].Value + " " + match.Groups[4].Value;
-                }
-                else if (match.Groups[1].Value.Equals("helio", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"mt\w+", RegexOptions.IgnoreCase))
-                {
-                    var mediatekMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:mediatek)?(?: ?(?:(mt[\w+-]+)))?(?: or.*)?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?", RegexOptions.IgnoreCase);
-                    producer = "Mediatek";
-                    model = string.IsNullOrWhiteSpace(mediatekMatch.Groups[1].Value) ? null : mediatekMatch.Groups[1].Value;
-                    model = model != null ? model : (string.IsNullOrWhiteSpace(mediatekMatch.Groups[3].Value) ? null : mediatekMatch.Groups[3].Value);
-                    name = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value)
-                        ? null
-                        : $"{mediatekMatch.Groups[2].Value} {mediatekMatch.Groups[3]}".Trim();
-                    series = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value) ? null : mediatekMatch.Groups[2].Value;
-                }
-                else if (match.Groups[1].Value.Equals("hisilicon", StringComparison.OrdinalIgnoreCase) || match.Groups[1].Value.Equals("huawei", StringComparison.OrdinalIgnoreCase))
-                {
-                    producer = "HiSilicon";
-                    series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
-                    model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
-                }
-                else if (match.Groups[1].Value.Equals("intel", StringComparison.OrdinalIgnoreCase))
-                {
-                    producer = "Intel";
-                    series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
-                    model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
-                }
-                else if (Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm|apq|esc|esm|msm|qsc)", RegexOptions.IgnoreCase))
-                {
-                    var qualcommMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm)?(?: ?(?:((?:[\w+-]+ ?){0,2})))?", RegexOptions.IgnoreCase);
-                    producer = "Qualcomm";
-                    name = inputPhone.Overview.Expansion.Chipset.Contains("snapdragon", StringComparison.OrdinalIgnoreCase) ? "Snapdragon" : null;
-                    model = string.IsNullOrWhiteSpace(qualcommMatch.Groups[1].Value) ? null : qualcommMatch.Groups[1].Value.Trim();
-                }
-                else if (match.Groups[1].Value.Contains("spreadtrum", StringComparison.OrdinalIgnoreCase))
-                {
-                    producer = "Spreadtrum";
-                    model = !string.IsNullOrWhiteSpace(match.Groups[3].Value)
-                        ? match.Groups[3].Value
-                        : (!string.IsNullOrWhiteSpace(match.Groups[2].Value) ? match.Groups[2].Value : null);
-                }
-                else if (match.Groups[1].Value.Equals("nvidia", StringComparison.OrdinalIgnoreCase))
-                {
-                    var nvidiaMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^nvidia (?:([a-zA-Z]+\b) ?)?(?:([\w]{1,3}\b) ?)?(?:([\w ]+\b) ?)?", RegexOptions.IgnoreCase);
-                    producer = "NVIDIA";
-                    series = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[1].Value) ? null : nvidiaMatch.Groups[1].Value;
-                    model = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[3].Value) ? null : nvidiaMatch.Groups[3].Value;
+                    if (match.Groups[1].Value.Equals("apple", StringComparison.OrdinalIgnoreCase))
+                    {
+                        producer = "Apple";
+                        series = match.Groups[3].Value.FirstOrDefault().ToString();
+                        model = "Apple " + match.Groups[3].Value;
+                        if (!string.IsNullOrWhiteSpace(match.Groups[4].Value))
+                            model += $" {match.Groups[4].Value}";
+                    }
+                    else if (match.Groups[1].Value.Equals("exynos", StringComparison.OrdinalIgnoreCase))
+                    {
+                        producer = "Samsung";
+                        name = "Exynos";
+                        model = string.IsNullOrWhiteSpace(match.Groups[4].Value)
+                            ? match.Groups[3].Value
+                            : match.Groups[3].Value + " " + match.Groups[4].Value;
+                    }
+                    else if (match.Groups[1].Value.Equals("helio", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"mt\w+", RegexOptions.IgnoreCase))
+                    {
+                        var mediatekMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:mediatek)?(?: ?(?:(mt[\w+-]+)))?(?: or.*)?(?: ?(?:([\w+-]+)))?(?: ?(?:([\w+-]+)))?", RegexOptions.IgnoreCase);
+                        producer = "Mediatek";
+                        model = string.IsNullOrWhiteSpace(mediatekMatch.Groups[1].Value) ? null : mediatekMatch.Groups[1].Value;
+                        model = model != null ? model : (string.IsNullOrWhiteSpace(mediatekMatch.Groups[3].Value) ? null : mediatekMatch.Groups[3].Value);
+                        name = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value)
+                            ? null
+                            : $"{mediatekMatch.Groups[2].Value} {mediatekMatch.Groups[3]}".Trim();
+                        series = string.IsNullOrWhiteSpace(mediatekMatch.Groups[2].Value) ? null : mediatekMatch.Groups[2].Value;
+                    }
+                    else if (match.Groups[1].Value.Equals("hisilicon", StringComparison.OrdinalIgnoreCase) || match.Groups[1].Value.Equals("huawei", StringComparison.OrdinalIgnoreCase))
+                    {
+                        producer = "HiSilicon";
+                        series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
+                        model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+                    }
+                    else if (match.Groups[1].Value.Equals("intel", StringComparison.OrdinalIgnoreCase))
+                    {
+                        producer = "Intel";
+                        series = string.IsNullOrWhiteSpace(match.Groups[2].Value) ? null : match.Groups[2].Value;
+                        model = string.IsNullOrWhiteSpace(match.Groups[3].Value) ? null : match.Groups[3].Value;
+                    }
+                    else if (Regex.IsMatch(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm|apq|esc|esm|msm|qsc)", RegexOptions.IgnoreCase))
+                    {
+                        var qualcommMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^(?:snapdragon|qualcomm)?(?: ?(?:((?:[\w+-]+ ?){0,2})))?", RegexOptions.IgnoreCase);
+                        producer = "Qualcomm";
+                        name = inputPhone.Overview.Expansion.Chipset.Contains("snapdragon", StringComparison.OrdinalIgnoreCase) ? "Snapdragon" : null;
+                        model = string.IsNullOrWhiteSpace(qualcommMatch.Groups[1].Value) ? null : qualcommMatch.Groups[1].Value.Trim();
+                    }
+                    else if (match.Groups[1].Value.Contains("spreadtrum", StringComparison.OrdinalIgnoreCase))
+                    {
+                        producer = "Spreadtrum";
+                        model = !string.IsNullOrWhiteSpace(match.Groups[3].Value)
+                            ? match.Groups[3].Value
+                            : (!string.IsNullOrWhiteSpace(match.Groups[2].Value) ? match.Groups[2].Value : null);
+                    }
+                    else if (match.Groups[1].Value.Equals("nvidia", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var nvidiaMatch = Regex.Match(inputPhone.Overview.Expansion.Chipset, @"^nvidia (?:([a-zA-Z]+\b) ?)?(?:([\w]{1,3}\b) ?)?(?:([\w ]+\b) ?)?", RegexOptions.IgnoreCase);
+                        producer = "NVIDIA";
+                        series = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[1].Value) ? null : nvidiaMatch.Groups[1].Value;
+                        model = string.IsNullOrWhiteSpace(nvidiaMatch.Groups[3].Value) ? null : nvidiaMatch.Groups[3].Value;
 
-                }
+                    }
 
-                resultPhone.CpuModel = model;
-                resultPhone.CpuName = name;
-                resultPhone.CpuProducer = producer;
-                resultPhone.CpuSeries = series;
+                    resultPhone.CpuModel = model;
+                    resultPhone.CpuName = name;
+                    resultPhone.CpuProducer = producer;
+                    resultPhone.CpuSeries = series;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Platform?.Cpu))
+            {
+                var match = Regex.Match(inputPhone.Detail.Platform.Cpu, @"^(dual|triple|quad|hexa|octa|deca)?", RegexOptions.IgnoreCase);
+                int? cores = null;
+                switch (match.Groups[1].Value.ToLowerInvariant())
+                {
+                    case "dual":
+                        cores = 2;
+                        break;
+                    case "triple":
+                        cores = 3;
+                        break;
+                    case "quad":
+                        cores = 4;
+                        break;
+                    case "hexa":
+                        cores = 6;
+                        break;
+                    case "octa":
+                        cores = 8;
+                        break;
+                    case "deca":
+                        cores = 10;
+                        break;
+                    default:
+                        break;
+                }
+                resultPhone.CpuCores = cores;
             }
 
         }
@@ -1034,6 +1136,20 @@ namespace ArktiPhones
 
             resultPhone.AnnouncedDate = new DateTime(yearAnnounced, monthAnnounced, 1);
             resultPhone.ReleasedDate = new DateTime(yearReleased, monthReleased, dayReleased);
+        }
+
+        private void Debug()
+        {
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Single?.FirstOrDefault()))
+                resultPhone.CameraOriginalText = "Single: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Single);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Dual?.FirstOrDefault()))
+                resultPhone.CameraOriginalText = "Dual: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Dual);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Triple?.FirstOrDefault()))
+                resultPhone.CameraOriginalText = "Triple: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Triple);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Quad?.FirstOrDefault()))
+                resultPhone.CameraOriginalText = "Quad: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Quad);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Five?.FirstOrDefault()))
+                resultPhone.CameraOriginalText = "Five: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Five);
         }
     }
 }
