@@ -22,11 +22,11 @@ namespace ArktiPhones
                 .ToList();
 
             var distinctRawValuesCount = inputPhonesProcessed
-                .Where(p => p.Detail.MainCamera?.Single != null)
+                .Where(p => p.Detail.SelfieCamera?.Dual != null)
                 // .SelectMany(p => p.Detail.MainCamera?.Single.FirstOrDefault().Split(','))
                 // .GroupBy(ph => ph.Trim())
                 // .GroupBy(ph => string.Join("  |  ", ph.Detail.MainCamera.Single))
-                .GroupBy(ph => ph.Detail.Platform?.Cpu)
+                .GroupBy(ph => ph.Detail.SelfieCamera.Dual)
                 .Select(p => new
                 {
                     Value = p.Key + $" (x{p.Count()})"
@@ -46,14 +46,14 @@ namespace ArktiPhones
                     }
                 }
                 var distinctRemodeledValuesCount = remodeledPhones
-                    .GroupBy(ph => ph.Cameras.Count)
+                    .GroupBy(ph => ph.Status)
                     .OrderByDescending(p => p.Key)
                     .Select(p =>
                     {
                         var query = from selectedPhone in p
                                     join originalPhone in inputPhonesProcessed
                                     on selectedPhone.PhoneId equals originalPhone.PhoneId
-                                    select originalPhone.Detail.MainCamera;
+                                    select originalPhone.Detail.Launch.Status;
                         return new
                         {
                             Key = $"{p.Key} (x{query.Count()})",
@@ -74,9 +74,9 @@ namespace ArktiPhones
                 System.IO.File.WriteAllText(Path.Combine("Results", "TestRemodeledResult.json"),
                     JsonConvert.SerializeObject(distinctRemodeledValuesCount, Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate), Formatting.Indented));
+                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate.Quarter).OrderByDescending(p => p.AnnouncedDate.Month).OrderByDescending(p => p.AnnouncedDate.Year), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResultsWithoutNulls.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate), Formatting.Indented,
+                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate.Quarter).OrderByDescending(p => p.AnnouncedDate.Month).OrderByDescending(p => p.AnnouncedDate.Year), Formatting.Indented,
                       new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
             }
 

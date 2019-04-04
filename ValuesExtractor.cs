@@ -55,8 +55,6 @@ namespace ArktiPhones
             SetCameraVideoModes();
             SetCameraFeatures();
             SetCameras();
-            // SetSingleCamera();
-            // SetDualCamera();
         }
 
         private void SetCameras()
@@ -64,105 +62,115 @@ namespace ArktiPhones
             var cameras = new List<Camera>();
             resultPhone.Cameras = cameras;
 
-            var data = new List<string>();
+            var rearCamerasData = new List<string>();
+            var frontCamerasData = new List<string>();
+            var allCamerasData = new List<List<string>>();
             if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Single?.FirstOrDefault()))
-                data = inputPhone.Detail.MainCamera?.Single;
+                rearCamerasData = inputPhone.Detail.MainCamera?.Single;
             else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Dual?.FirstOrDefault()))
-                data = inputPhone.Detail.MainCamera?.Dual;
+                rearCamerasData = inputPhone.Detail.MainCamera?.Dual;
             else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Triple?.FirstOrDefault()))
-                data = inputPhone.Detail.MainCamera?.Triple;
+                rearCamerasData = inputPhone.Detail.MainCamera?.Triple;
             else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Quad?.FirstOrDefault()))
-                data = inputPhone.Detail.MainCamera?.Quad;
+                rearCamerasData = inputPhone.Detail.MainCamera?.Quad;
             else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Five?.FirstOrDefault()))
-                data = inputPhone.Detail.MainCamera?.Five;
-            else
-                return;
+                rearCamerasData = inputPhone.Detail.MainCamera?.Five;
 
-
-            var rawCameras = string
-                .Join("|", data)
-                .Split("|or", StringSplitOptions.RemoveEmptyEntries)
-                .FirstOrDefault()
-                .Split('|')
-                .Select(v => v.Split(',').Select(sv => sv.Trim()));
-            // if (inputPhone.Slug == "nokia_9_pureview-8867")
-            //     System.Console.WriteLine();
-            var additionalFeatures = new Dictionary<string, int?>();
-            foreach (var rawCamera in rawCameras)
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Single?.FirstOrDefault()))
+                frontCamerasData = inputPhone.Detail.SelfieCamera?.Single;
+            else if (!string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Dual?.FirstOrDefault()))
+                frontCamerasData = inputPhone.Detail.SelfieCamera?.Dual;
+            allCamerasData.Add(rearCamerasData);
+            allCamerasData.Add(frontCamerasData);
+            for (var k = 0; k < 2; k++)
             {
-                double? megapixels = null;
-                int? zoom = null;
-                double? sensorSize = null;
-                double? focalLength = null;
-                double? aperture = null;
-                var camerasAmount = 1;
-                var features = new List<string>();
-                foreach (var value in rawCamera)
-                {
-                    var match = Regex.Match(value, @"^(?:([sq]?vga|cif|yes))?(?:(?:(\d)x )?(?:motorized pop-up )?(\d+(?:\.\d*)?) mp)?(?: (b\/w))?(?:(\d+\.?\d*) ?mm?\b)?(?:\d\/(\d(?:\.\d+)?)""?)?(?: ?\((ultra ?wide|wide|standard|telephoto)\)?)?(?:(\d+\.?\d*)(?:x|kh) (?:optical|lossless)? ?zoom)?(?:f\/?(\d\.\d+))?", RegexOptions.IgnoreCase);
-                    if (match.Groups[1].Success)
-                        megapixels = Converters.ConvertNameToResolution(match.Groups[1].Value).Megapixels;
-                    else if (match.Groups[3].Success)
-                        megapixels = match.Groups[3].Value.ToNullableDouble();
-                    else if (match.Groups[5].Success)
-                        focalLength = match.Groups[5].Value.ToNullableDouble();
-                    else if (match.Groups[6].Success)
-                        sensorSize = match.Groups[6].Value.ToNullableDouble();
-                    else if (match.Groups[8].Success)
-                        zoom = match.Groups[8].Value.ToNullableInt();
-                    else if (match.Groups[9].Success)
-                        aperture = match.Groups[9].Value.ToNullableDouble();
-                    if (match.Groups[4].Success)
-                        features.Add($"{match.Groups[4].Value.ToUpperInvariant()} color");
-                    if (match.Groups[7].Success)
-                        features.Add($"{match.Groups[7].Value.ToLowerInvariant()} lens");
-                    if (match.Groups[2].Success && int.TryParse(match.Groups[2].Value, out var result))
-                        camerasAmount = result;
+                if (allCamerasData.ElementAtOrDefault(k).Count == 0) continue;
 
-                    match = Regex.Match(value, @"^((?:predictive )?dual pixel pdaf|(?:no )?af|motorized pop-up|flir thermal camera|TOF 3D|tof|depth(?: & motion tracking)? sensors?|(?:\d-axis )?ois|pdaf|predictive pdaf|laser af|laser)?(?:(?: & |\/)?(laser af|pdaf))?(?:\(?(\d)x (?:(rgb|b\/w)) & (\d)x (?:(rgb|b\/w)))?", RegexOptions.IgnoreCase);
-                    if (match.Groups[1].Success)
-                        features.Add(match.Groups[1].Value.ToLowerInvariant());
-                    if (match.Groups[2].Success)
-                        features.Add(match.Groups[2].Value.ToLowerInvariant());
-                    if (match.Groups[3].Success && match.Groups[4].Success && int.TryParse(match.Groups[3].Value, out result))
-                        additionalFeatures.Add(match.Groups[4].Value.ToUpperInvariant(), match.Groups[3].Value.ToNullableInt());
-                    if (match.Groups[5].Success && match.Groups[6].Success && int.TryParse(match.Groups[5].Value, out result))
-                        additionalFeatures.Add(match.Groups[6].Value.ToUpperInvariant(), match.Groups[5].Value.ToNullableInt());
+                var rawCameras = string
+                    .Join("|", allCamerasData.ElementAtOrDefault(k))
+                    .Split("|or", StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault()
+                    .Split('|')
+                    .Select(v => v.Split(',').Select(sv => sv.Trim()));
+                // if (inputPhone.Slug == "nokia_9_pureview-8867")
+                //     System.Console.WriteLine();
+                var additionalFeatures = new Dictionary<string, int?>();
+                foreach (var rawCamera in rawCameras)
+                {
+                    double? megapixels = null;
+                    int? zoom = null;
+                    double? sensorSize = null;
+                    double? focalLength = null;
+                    double? aperture = null;
+                    var camerasAmount = 1;
+                    var features = new List<string>();
+                    foreach (var value in rawCamera)
+                    {
+                        var match = Regex.Match(value, @"^(?:([sq]?vga|cif|yes))?(?:(?:(\d)x )?(?:motorized pop-up |cover camera: )?(\d+(?:\.\d*)?) mp)?(?: (b\/w))?(?:(\d+\.?\d*) ?mm?\b)?(?:\d\/(\d(?:\.\d+)?)""?)?(?: ?\((ultra ?wide|wide|standard|telephoto)\)?)?(?:(\d+\.?\d*)(?:x|kh) (?:optical|lossless)? ?zoom)?(?:f\/?(\d\.\d+))?", RegexOptions.IgnoreCase);
+                        if (match.Groups[1].Success)
+                            megapixels = Converters.ConvertNameToResolution(match.Groups[1].Value).Megapixels;
+                        else if (match.Groups[3].Success)
+                            megapixels = match.Groups[3].Value.ToNullableDouble();
+                        else if (match.Groups[5].Success)
+                            focalLength = match.Groups[5].Value.ToNullableDouble();
+                        else if (match.Groups[6].Success)
+                            sensorSize = match.Groups[6].Value.ToNullableDouble();
+                        else if (match.Groups[8].Success)
+                            zoom = match.Groups[8].Value.ToNullableInt();
+                        else if (match.Groups[9].Success)
+                            aperture = match.Groups[9].Value.ToNullableDouble();
+                        if (match.Groups[4].Success)
+                            features.Add($"{match.Groups[4].Value.ToUpperInvariant()} color");
+                        if (match.Groups[7].Success)
+                            features.Add($"{match.Groups[7].Value.ToLowerInvariant()} lens");
+                        if (match.Groups[2].Success && int.TryParse(match.Groups[2].Value, out var result))
+                            camerasAmount = result;
+
+                        match = Regex.Match(value, @"^((?:predictive )?dual pixel pdaf|(?:no )?af|motorized pop-up|flir thermal camera|TOF 3D|tof|depth(?: & motion tracking)? sensors?|(?:\d-axis )?ois|pdaf|predictive pdaf|laser af|laser)?(?:(?: & |\/)?(laser af|pdaf))?(?:\(?(\d)x (?:(rgb|b\/w)) & (\d)x (?:(rgb|b\/w)))?", RegexOptions.IgnoreCase);
+                        if (match.Groups[1].Success)
+                            features.Add(match.Groups[1].Value.ToLowerInvariant());
+                        if (match.Groups[2].Success)
+                            features.Add(match.Groups[2].Value.ToLowerInvariant());
+                        if (match.Groups[3].Success && match.Groups[4].Success && int.TryParse(match.Groups[3].Value, out result))
+                            additionalFeatures.Add(match.Groups[4].Value.ToUpperInvariant(), match.Groups[3].Value.ToNullableInt());
+                        if (match.Groups[5].Success && match.Groups[6].Success && int.TryParse(match.Groups[5].Value, out result))
+                            additionalFeatures.Add(match.Groups[6].Value.ToUpperInvariant(), match.Groups[5].Value.ToNullableInt());
+
+                    }
+
+
+                    for (var i = 0; i < camerasAmount; i++)
+                        if (aperture != null
+                            || focalLength != null
+                            || zoom != null
+                            || sensorSize != null
+                            || megapixels != null
+                            || features.Count > 0)
+                        {
+                            var individualFeatures = new List<string>(features);
+                            cameras.Add(new Camera
+                            {
+                                Aperture = aperture,
+                                FocalLength = focalLength,
+                                OpticalZoom = zoom,
+                                SensorSize = sensorSize,
+                                Resolution = megapixels,
+                                Location = k == 0 ? "rear" : "front",
+                                Features = individualFeatures
+                            });
+                        }
 
                 }
 
-
-                for (var i = 0; i < camerasAmount; i++)
-                    if (aperture != null
-                        || focalLength != null
-                        || zoom != null
-                        || sensorSize != null
-                        || megapixels != null
-                        || features.Count > 0)
-                    {
-                        var individualFeatures = new List<string>(features);
-                        cameras.Add(new Camera
-                        {
-                            Aperture = aperture,
-                            FocalLength = focalLength,
-                            OpticalZoom = zoom,
-                            SensorSize = sensorSize,
-                            Resolution = megapixels,
-                            Location = "rear",
-                            Features = individualFeatures
-                        });
-                    }
-
-            }
-
-            if (additionalFeatures.Count > 0 && cameras.Count >= additionalFeatures.Sum(f => f.Value))
-            {
-                var position = 0;
-                for (var i = 0; i < additionalFeatures.Count; i++)
+                if (additionalFeatures.Count > 0 && cameras.Count >= additionalFeatures.Sum(f => f.Value))
                 {
-                    for (var j = 0; j < additionalFeatures.ElementAtOrDefault(i).Value; j++)
+                    var position = 0;
+                    for (var i = 0; i < additionalFeatures.Count; i++)
                     {
-                        cameras.ElementAtOrDefault(position++).Features.Add(additionalFeatures.ElementAtOrDefault(i).Key);
+                        for (var j = 0; j < additionalFeatures.ElementAtOrDefault(i).Value; j++)
+                        {
+                            cameras.ElementAtOrDefault(position++).Features.Add(additionalFeatures.ElementAtOrDefault(i).Key);
+                        }
                     }
                 }
             }
@@ -984,158 +992,22 @@ namespace ArktiPhones
         }
         public void SetDates()
         {
-            var regex = new Regex(@"^(\d{4})?[,.; ]*(Q\d)?(\w+)?[,.; ]*(?:Released\s*)*(?:Exp. release )?(\d{4})?[,.; ]*(Q\d)?(\w+)? ?(\d+)?(?:st|nd|rd|th)?$", RegexOptions.IgnoreCase);
-            var match = regex.Match(inputPhone.Detail.Launch.Announced);
-            var yearAnnounced = 1;
-            var monthAnnounced = 1;
-            var yearReleased = 1;
-            var monthReleased = 1;
-            var dayReleased = 1;
-            if (!string.IsNullOrWhiteSpace(match.Groups[1].Value) && int.TryParse(match.Groups[1].Value, out var result))
+            var match = Regex.Match(inputPhone.Detail.Launch.Status, @"^(?:(?:available|coming soon)\.? ?)?(?:(?:released|exp\. release) (\d{4})(?:, ((?:[a-z]{3,})|(?:Q\d)))?)", RegexOptions.IgnoreCase);
+            var released = Converters.ParseDate(match.Groups[1].Value, match.Groups[2].Value);
+
+            match = Regex.Match(inputPhone.Detail.Launch?.Announced, @"^(?:(\d{4})[,]? ?(?:((?:[a-z]{3,})|(?:[\dq ]{2,}\b))?\.? ?)?)(?:(?:(?: exp\. )?released? *)+(\d{4})(?:,? ((?:[a-z]{3,})|(?:[\dq ]{2,}\b)))?)?", RegexOptions.IgnoreCase);
+            var announced = Converters.ParseDate(match.Groups[1].Value, match.Groups[2].Value);
+
+            if (released.Year == null)
             {
-                yearAnnounced = result;
-                switch (match.Groups[2].Value)
-                {
-                    case "Q1":
-                        monthAnnounced = 2;
-                        break;
-                    case "Q2":
-                        monthAnnounced = 5;
-                        break;
-                    case "Q3":
-                        monthAnnounced = 8;
-                        break;
-                    case "Q4":
-                        monthAnnounced = 11;
-                        break;
+                released = Converters.ParseDate(match.Groups[3].Value, match.Groups[4].Value);
+                match = Regex.Match(inputPhone.Overview.GeneralInfo.Launched, @"^(?:(?:released ?|exp\. release)+ +(\d{4})(?:[, ]+((?:[a-z]{3,})|(?:[\dq ]{2,}\b)))?)", RegexOptions.IgnoreCase);
 
-                    default:
-                        break;
-                }
-
-                switch (match.Groups[3].Value)
-                {
-                    case "January":
-                        monthAnnounced = 1;
-                        break;
-                    case "February":
-                    case "Februray":
-                    case "Feburary":
-                        monthAnnounced = 2;
-                        break;
-                    case "March":
-                        monthAnnounced = 3;
-                        break;
-                    case "April":
-                        monthAnnounced = 4;
-                        break;
-                    case "May":
-                        monthAnnounced = 5;
-                        break;
-                    case "June":
-                        monthAnnounced = 6;
-                        break;
-                    case "July":
-                        monthAnnounced = 7;
-                        break;
-                    case "August":
-                    case "Aug":
-                        monthAnnounced = 8;
-                        break;
-                    case "September":
-                    case "Sep":
-                        monthAnnounced = 9;
-                        break;
-                    case "October":
-                    case "Oct":
-                        monthAnnounced = 10;
-                        break;
-                    case "November":
-                    case "Nov":
-                        monthAnnounced = 11;
-                        break;
-                    case "December":
-                        monthAnnounced = 12;
-                        break;
-                    default:
-                        break;
-                }
+                if (released.Year == null)
+                    released = Converters.ParseDate(match.Groups[3].Value, match.Groups[4].Value);
             }
-            if (!string.IsNullOrWhiteSpace(match.Groups[4].Value) && int.TryParse(match.Groups[1].Value, out result))
-            {
-                yearReleased = result;
-                switch (match.Groups[5].Value)
-                {
-                    case "Q1":
-                        monthReleased = 2;
-                        break;
-                    case "Q2":
-                        monthReleased = 5;
-                        break;
-                    case "Q3":
-                        monthReleased = 8;
-                        break;
-                    case "Q4":
-                        monthReleased = 11;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                switch (match.Groups[6].Value)
-                {
-                    case "January":
-                        monthReleased = 1;
-                        break;
-                    case "February":
-                    case "Februray":
-                    case "Feburary":
-                        monthReleased = 2;
-                        break;
-                    case "March":
-                        monthReleased = 3;
-                        break;
-                    case "April":
-                        monthReleased = 4;
-                        break;
-                    case "May":
-                        monthReleased = 5;
-                        break;
-                    case "June":
-                        monthReleased = 6;
-                        break;
-                    case "July":
-                        monthReleased = 7;
-                        break;
-                    case "August":
-                    case "Aug":
-                        monthReleased = 8;
-                        break;
-                    case "September":
-                    case "Sep":
-                        monthReleased = 9;
-                        break;
-                    case "October":
-                    case "Oct":
-                        monthReleased = 10;
-                        break;
-                    case "November":
-                    case "Nov":
-                        monthReleased = 11;
-                        break;
-                    case "December":
-                        monthReleased = 12;
-                        break;
-                    default:
-                        break;
-                }
-                if (!string.IsNullOrWhiteSpace(match.Groups[7].Value) && int.TryParse(match.Groups[1].Value, out result))
-                    dayReleased = result < 32 ? result : 1;
-            }
-
-            resultPhone.AnnouncedDate = new DateTime(yearAnnounced, monthAnnounced, 1);
-            resultPhone.ReleasedDate = new DateTime(yearReleased, monthReleased, dayReleased);
+            resultPhone.AnnouncedDate = announced;
+            resultPhone.ReleasedDate = released;
         }
 
         private void Debug()
@@ -1150,6 +1022,17 @@ namespace ArktiPhones
                 resultPhone.CameraOriginalText = "Quad: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Quad);
             if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Five?.FirstOrDefault()))
                 resultPhone.CameraOriginalText = "Five: " + string.Join("  |  ", inputPhone.Detail.MainCamera.Five);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Single?.FirstOrDefault()))
+                resultPhone.CameraOriginalText += "||  Front Single: " + string.Join("  |  ", inputPhone.Detail.SelfieCamera.Single);
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Dual?.FirstOrDefault()))
+                resultPhone.CameraOriginalText += "||  Front Dual: " + string.Join("  |  ", inputPhone.Detail.SelfieCamera.Dual);
+
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Launch.Status))
+                resultPhone.DatesOriginalText += "Detail.Launch.Status: " + inputPhone.Detail.Launch.Status;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.Launch?.Announced))
+                resultPhone.DatesOriginalText += " |  Detail.Launch?.Announced: " + inputPhone.Detail.Launch?.Announced;
+            if (!string.IsNullOrWhiteSpace(inputPhone.Overview.GeneralInfo.Launched))
+                resultPhone.DatesOriginalText += " |  Overview.GeneralInfo.Launched: " + inputPhone.Overview.GeneralInfo.Launched;
         }
     }
 }

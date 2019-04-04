@@ -7,8 +7,9 @@ public class PhoneDetails
     public string Slug { get; set; }
     public string Brand { get; set; }
     public string Name { get; set; }
-    public DateTime AnnouncedDate { get; set; }
-    public DateTime ReleasedDate { get; set; }
+    public Date AnnouncedDate { get; set; }
+    public Date ReleasedDate { get; set; }
+    public string DatesOriginalText { get; set; }
     public string Status { get; set; }
     public int? BatteryCapacity { get; set; }
     public string BatteryTechnology { get; set; }
@@ -104,4 +105,11 @@ public class VideoMode
     public int? FrameRate { get; set; }
     public string CameraSide { get; set; }
 
+}
+
+public class Date
+{
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public int? Quarter { get; set; }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ArktiPhones.Extensions;
 
 namespace ArktiPhones
 {
@@ -74,6 +75,65 @@ namespace ArktiPhones
                     break;
             }
             return result;
+        }
+
+        public static Date ParseDate(string year, string monthOrQuarter)
+        {
+            int? resultYear = null;
+            int? month = null;
+            int? quarter = null;
+            if (string.IsNullOrWhiteSpace(year + monthOrQuarter)) return new Date();
+            resultYear = year.ToNullableInt();
+            quarter = Regex.Replace(monthOrQuarter, @"[a-zA-Z ]", "").ToNullableInt();
+
+            switch (monthOrQuarter.ToLowerInvariant())
+            {
+                case "january":
+                    month = 1;
+                    break;
+                case "february":
+                case "februray":
+                case "feburary":
+                    month = 2;
+                    break;
+                case "march":
+                    month = 3;
+                    break;
+                case "april":
+                    month = 4;
+                    break;
+                case "may":
+                    month = 5;
+                    break;
+                case "june":
+                    month = 6;
+                    break;
+                case "july":
+                    month = 7;
+                    break;
+                case "august":
+                case "aug":
+                    month = 8;
+                    break;
+                case "september":
+                case "sep":
+                    month = 9;
+                    break;
+                case "october":
+                case "oct":
+                    month = 10;
+                    break;
+                case "november":
+                case "nov":
+                    month = 11;
+                    break;
+                case "december":
+                    month = 12;
+                    break;
+                default:
+                    break;
+            }
+            return new Date { Year = resultYear, Month = month, Quarter = quarter };
         }
     }
 }
