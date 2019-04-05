@@ -177,61 +177,80 @@ namespace ArktiPhones
         }
         private void SetCameraFeatures()
         {
-            var features = new List<string>();
-            int? leds = null;
-            if (!string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Features))
+            var allCamerasFeatures = new List<List<string>>();
+
+            var rearCameraFeatures = new List<string>();
+            var frontCameraFeatures = new List<string>();
+            allCamerasFeatures.Add(rearCameraFeatures);
+            allCamerasFeatures.Add(frontCameraFeatures);
+            var rawFeatures = new List<string>();
+            rawFeatures.Add(string.IsNullOrWhiteSpace(inputPhone.Detail.MainCamera?.Features) ? "" : inputPhone.Detail.MainCamera.Features);
+            rawFeatures.Add(string.IsNullOrWhiteSpace(inputPhone.Detail.SelfieCamera?.Features) ? "" : inputPhone.Detail.SelfieCamera.Features);
+
+            var leds = new List<int?>(2) { null, null };
+            for (var i = 0; i < 2; i++)
             {
-                foreach (var value in inputPhone.Detail.MainCamera.Features.Split(',').Select(f => f.Trim()))
+                if (!string.IsNullOrWhiteSpace(rawFeatures.ElementAtOrDefault(i)))
                 {
-                    var match = Regex.Match(value, @"^(?:((?:(?:carl )?zeiss(?: tessar)?)|leica|Schneider[ -]Kreuznach)(?: lens| optics)?)?(?:(xenon|strobe)(?: flash)?(?: &| and)? ?)?(?:((?:dual|tripp?le|3|quad|six|ten)?-?led) ?(rgb|dual[ -]tone)?)?", RegexOptions.IgnoreCase);
-                    if (match.Groups[1].Success)
-                        features.Add(match.Groups[1].Value + " optics");
-                    if (match.Groups[2].Success)
-                        features.Add("xenon");
-                    if (match.Groups[4].Success)
-                        features.Add(match.Groups[4].Value.ToLowerInvariant() == "rgb" ? "RGB LEDs" : "dual-tone LEDs");
-
-                    switch (match.Groups[3].Value.ToLowerInvariant())
+                    foreach (var value in rawFeatures.ElementAtOrDefault(i).Split(',').Select(f => f.Trim()))
                     {
-                        case "flash":
-                        case "led":
-                            leds = 1;
-                            break;
-                        case "dual-led":
-                            leds = 2;
-                            break;
-                        case "triple-led":
-                        case "tripple-led":
-                        case "3led":
-                            leds = 3;
-                            break;
-                        case "quad-led":
-                            leds = 4;
-                            break;
-                        case "six-led":
-                            leds = 6;
-                            break;
-                        case "ten-led":
-                            leds = 10;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if (inputPhone.Detail.MainCamera.Features.Contains("depth & motion tracking", StringComparison.OrdinalIgnoreCase))
-                    features.Add("depth & motion tracking");
-                if (inputPhone.Detail.MainCamera.Features.Contains("hdr", StringComparison.OrdinalIgnoreCase))
-                    features.Add("HDR");
-                if (inputPhone.Detail.MainCamera.Features.Contains("rotating lens", StringComparison.OrdinalIgnoreCase))
-                    features.Add("rotating lens");
-                if (inputPhone.Detail.MainCamera.Features.Contains("panorama", StringComparison.OrdinalIgnoreCase))
-                    features.Add("panorama");
-                if (inputPhone.Detail.MainCamera.Features.Contains("thermal imaging", StringComparison.OrdinalIgnoreCase))
-                    features.Add("thermal imaging");
-            }
-            resultPhone.CameraLeds = leds;
+                        var match = Regex.Match(value, @"^(?:((?:(?:carl )?zeiss(?: tessar)?)|leica|Schneider[ -]Kreuznach)(?: lens| optics)?)?(?:(xenon|strobe)(?: flash)?(?: &| and)? ?)?(?:((?:dual|tripp?le|3|quad|six|ten)?-?led) ?(rgb|dual[ -]tone)?)?", RegexOptions.IgnoreCase);
+                        if (match.Groups[1].Success)
+                            allCamerasFeatures.ElementAtOrDefault(i).Add(match.Groups[1].Value + " optics");
+                        if (match.Groups[2].Success)
+                            allCamerasFeatures.ElementAtOrDefault(i).Add("xenon");
+                        if (match.Groups[4].Success)
+                            allCamerasFeatures.ElementAtOrDefault(i).Add(match.Groups[4].Value.ToLowerInvariant() == "rgb" ? "RGB LEDs" : "dual-tone LEDs");
 
-            resultPhone.CameraFeatures = features;
+                        switch (match.Groups[3].Value.ToLowerInvariant())
+                        {
+                            case "flash":
+                            case "led":
+                                leds[i] = 1;
+                                break;
+                            case "dual-led":
+                                leds[i] = 2;
+                                break;
+                            case "triple-led":
+                            case "tripple-led":
+                            case "3led":
+                                leds[i] = 3;
+                                break;
+                            case "quad-led":
+                                leds[i] = 4;
+                                break;
+                            case "six-led":
+                                leds[i] = 6;
+                                break;
+                            case "ten-led":
+                                leds[i] = 10;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("depth & motion tracking", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("depth & motion tracking");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("hdr", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("HDR");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("rotating lens", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("rotating lens");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("panorama", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("panorama");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("thermal imaging", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("thermal imaging");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("face detection", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("face detection");
+                    if (rawFeatures.ElementAtOrDefault(i).Contains("dual video call", StringComparison.OrdinalIgnoreCase))
+                        allCamerasFeatures.ElementAtOrDefault(i).Add("dual video call");
+                }
+            }
+
+            resultPhone.RearCameraLeds = leds[0];
+            resultPhone.FrontCameraLeds = leds[1];
+
+            resultPhone.RearCameraFeatures = rearCameraFeatures;
+            resultPhone.FrontCameraFeatures = frontCameraFeatures;
         }
         private void SetCameraVideoModes()
         {

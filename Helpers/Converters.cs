@@ -85,53 +85,56 @@ namespace ArktiPhones
             if (string.IsNullOrWhiteSpace(year + monthOrQuarter)) return new Date();
             resultYear = year.ToNullableInt();
             quarter = Regex.Replace(monthOrQuarter, @"[a-zA-Z ]", "").ToNullableInt();
-
-            switch (monthOrQuarter.ToLowerInvariant())
+            if (quarter == null)
             {
-                case "january":
-                    month = 1;
-                    break;
-                case "february":
-                case "februray":
-                case "feburary":
-                    month = 2;
-                    break;
-                case "march":
-                    month = 3;
-                    break;
-                case "april":
-                    month = 4;
-                    break;
-                case "may":
-                    month = 5;
-                    break;
-                case "june":
-                    month = 6;
-                    break;
-                case "july":
-                    month = 7;
-                    break;
-                case "august":
-                case "aug":
-                    month = 8;
-                    break;
-                case "september":
-                case "sep":
-                    month = 9;
-                    break;
-                case "october":
-                case "oct":
-                    month = 10;
-                    break;
-                case "november":
-                case "nov":
-                    month = 11;
-                    break;
-                case "december":
-                    month = 12;
-                    break;
-                default:
-                    break;
+                switch (monthOrQuarter.ToLowerInvariant())
+                {
+                    case "january":
+                        month = 1;
+                        break;
+                    case "february":
+                    case "februray":
+                    case "feburary":
+                        month = 2;
+                        break;
+                    case "march":
+                        month = 3;
+                        break;
+                    case "april":
+                        month = 4;
+                        break;
+                    case "may":
+                        month = 5;
+                        break;
+                    case "june":
+                        month = 6;
+                        break;
+                    case "july":
+                        month = 7;
+                        break;
+                    case "august":
+                    case "aug":
+                        month = 8;
+                        break;
+                    case "september":
+                    case "sep":
+                    case "septeber":
+                        month = 9;
+                        break;
+                    case "october":
+                    case "oct":
+                        month = 10;
+                        break;
+                    case "november":
+                    case "nov":
+                        month = 11;
+                        break;
+                    case "december":
+                        month = 12;
+                        break;
+                    default:
+                        break;
+                }
             }
             return new Date { Year = resultYear, Month = month, Quarter = quarter };
         }

@@ -101,7 +101,7 @@
     "main__camera": {
       "video": "2160p@60fps, 1080p@240fps, 720p@960fps, HDR, dual-video rec.",
       "features": "LED flash, auto-HDR, panorama",
-      "triple": [ // WAITING
+      "triple": [
         "12 MP, f/1.5-2.4, 26mm (wide), 1/2.55\", 1.4m, Dual Pixel PDAF, OIS",
         "12 MP, f/2.4, 52mm (telephoto), 1/3.6\", 1.0m, AF, OIS, 2x optical zoom",
         "16 MP, f/2.2, 12mm (ultrawide), 1.0m"
@@ -140,11 +140,11 @@
       "gpu": "Mali-G76 MP12 - EMEA Adreno 640 - USA/LATAM, China"
     },
     "selfie_camera": {
-      "single": [ // WAITING
+      "single": [
         "10 MP, f/1.9, 26mm (wide), 1.22m, Dual Pixel PDAF"
       ],
-      "video": "2160p@30fps, 1080p@30fps", // WAITING
-      "features": "Dual video call, Auto-HDR" // WAITING
+      "video": "2160p@30fps, 1080p@30fps", 
+      "features": "Dual video call, Auto-HDR"
     },
     "sound": {
       "3_5mm_jack": "Yes",

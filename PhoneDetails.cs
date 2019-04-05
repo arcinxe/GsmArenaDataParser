@@ -53,8 +53,10 @@ public class PhoneDetails
     public int? VideoResolution { get; set; }
     public List<VideoMode> VideoModes { get; set; }
     public List<string> VideoFeatures { get; set; }
-    public int? CameraLeds { get; set; }
-    public List<string> CameraFeatures { get; set; }
+    public int? FrontCameraLeds { get; set; }
+    public int? RearCameraLeds { get; set; }
+    public List<string> RearCameraFeatures { get; set; }
+    public List<string> FrontCameraFeatures { get; set; }
     public List<string> Sensors { get; set; }
     public string MemoryCardType { get; set; }
     public int? MemoryCardMaxSize { get; set; }
@@ -89,7 +91,7 @@ public class PhoneDetails
 
 public class Camera
 {
-    public string Location { get; set; }// WAITING
+    public string Location { get; set; }
     public double? Resolution { get; set; }
     public int? OpticalZoom { get; set; }
     public double? SensorSize { get; set; }  // 1/x.xx"
