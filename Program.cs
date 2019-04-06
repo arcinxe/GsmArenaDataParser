@@ -46,13 +46,13 @@ namespace ArktiPhones
                     }
                 }
                 var distinctRemodeledValuesCount = remodeledPhones
-                    .GroupBy(ph => ph.Status)
+                    .GroupBy(ph => ph.Status.CurrentStatus)
                     .OrderByDescending(p => p.Key)
                     .Select(p =>
                     {
                         var query = from selectedPhone in p
                                     join originalPhone in inputPhonesProcessed
-                                    on selectedPhone.PhoneId equals originalPhone.PhoneId
+                                    on selectedPhone.Basics.PhoneId equals originalPhone.PhoneId
                                     select originalPhone.Detail.Launch.Status;
                         return new
                         {
@@ -74,9 +74,9 @@ namespace ArktiPhones
                 System.IO.File.WriteAllText(Path.Combine("Results", "TestRemodeledResult.json"),
                     JsonConvert.SerializeObject(distinctRemodeledValuesCount, Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate.Quarter).OrderByDescending(p => p.AnnouncedDate.Month).OrderByDescending(p => p.AnnouncedDate.Year), Formatting.Indented));
+                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResultsWithoutNulls.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.AnnouncedDate.Quarter).OrderByDescending(p => p.AnnouncedDate.Month).OrderByDescending(p => p.AnnouncedDate.Year), Formatting.Indented,
+                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented,
                       new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
             }
 
