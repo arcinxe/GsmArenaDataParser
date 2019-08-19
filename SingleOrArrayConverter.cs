@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ArktiPhones
+namespace GsmArenaDataParser
 {
    public class SingleOrArrayConverter<T> : JsonConverter
 {
