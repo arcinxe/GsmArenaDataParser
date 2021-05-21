@@ -138,5 +138,111 @@ namespace ArktiPhones
             }
             return new Date { Year = resultYear, Month = month, Quarter = quarter };
         }
+
+        public static string FormatName(string name)
+        {
+            switch (name.ToLowerInvariant())
+            {
+                case "3-axis ois":
+                    name = "3-axis OIS";
+                    break;
+                case "4-axis ois":
+                    name = "4-axis OIS";
+                    break;
+                case "5-axis ois":
+                    name = "5-axis OIS";
+                    break;
+                case "b/w":
+                    name = "B/W";
+                    break;
+                case "b/w color":
+                    name = "B/W color";
+                    break;
+                case "carl zeiss tessar optics":
+                    name = "Carl Zeiss Tessar optics";
+                    break;
+                case "carl zeiss optics":
+                    name = "Carl Zeiss optics";
+                    break;
+                case "hdr":
+                    name = "HDR";
+                    break;
+                case "leica optics":
+                    name = "Leica optics";
+                    break;
+                case "rgb":
+                    name = "RGB";
+                    break;
+                case "rgb leds":
+                    name = "RGB LEDs";
+                    break;
+                case "schneider kreuznach optics":
+                    name = "Schneider Kreuznach optics";
+                    break;
+                case "schneider-kreuznach optics":
+                    name = "Schneider-Kreuznach optics";
+                    break;
+                case "zeiss optics":
+                    name = "Zeiss optics";
+                    break;
+                case "af":
+                    name = "AF";
+                    break;
+                case "dual pixel pdaf":
+                    name = "dual pixel PDAF";
+                    break;
+                case "dual video call":
+                    name = "dual video call";
+                    break;
+                case "dual video recording":
+                    name = "dual video recording";
+                    break;
+                case "dual-tone leds":
+                    name = "dual-tone LEDs";
+                    break;
+                case "flir thermal camera":
+                    name = "FLIR thermal camera";
+                    break;
+                case "gyro-eis":
+                    name = "gyro-EIS";
+                    break;
+                case "laser af":
+                    name = "laser AF";
+                    break;
+                case "motorized pop-up":
+                    name = "motorized pop-up";
+                    break;
+                case "no af":
+                    name = "no AF";
+                    break;
+                case "ois":
+                    name = "OIS";
+                    break;
+                case "panorama":
+                    name = "panorama";
+                    break;
+                case "pdaf":
+                    name = "PDAF";
+                    break;
+                case "predictive dual pixel pdaf":
+                    name = "predictive Dual Pixel PDAF";
+                    break;
+                case "predictive PDAF":
+                    name = "predictive PDAF";
+                    break;
+                case "tof":
+                    name = "ToF";
+                    break;
+                case "tof 3d":
+                    name = "ToF 3d";
+                    break;
+                case "ultra wide lens":
+                    name = "ultrawide lens";
+                    break;
+                default:
+                    break;
+            }
+            return name;
+        }
     }
 }

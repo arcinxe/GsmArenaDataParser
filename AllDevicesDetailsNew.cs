@@ -7,7 +7,7 @@ namespace ArktiPhones
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
-    public partial class AllPhonesDetails
+    public partial class AllDevicesDetails
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public Data Data { get; set; }
@@ -344,6 +344,8 @@ namespace ArktiPhones
         public string Empty { get; set; }
 
         [JsonProperty("dual", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+
         public List<string> Dual { get; set; }
     }
 

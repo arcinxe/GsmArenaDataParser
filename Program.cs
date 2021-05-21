@@ -14,14 +14,14 @@ namespace ArktiPhones
         {
             var startTime = DateTime.Now;
             System.Console.WriteLine($"Started at {startTime}");
-            var file = System.IO.File.ReadAllText(Path.Combine("Results", "AllPhonesDetails.json"));
-            var inputPhonesProcessed = JsonConvert
-                .DeserializeObject<List<AllPhonesDetails>>(file)
+            var file = System.IO.File.ReadAllText(Path.Combine("Results", "AllDevicesDetails.json"));
+            var inputDevicesProcessed = JsonConvert
+                .DeserializeObject<List<AllDevicesDetails>>(file)
                 .Where(p => p?.Data != null)
                 .Select(p => p.Data)
                 .ToList();
 
-            var distinctRawValuesCount = inputPhonesProcessed
+            var distinctRawValuesCount = inputDevicesProcessed
                 .Where(p => p.Detail.SelfieCamera?.Dual != null)
                 // .SelectMany(p => p.Detail.MainCamera?.Single.FirstOrDefault().Split(','))
                 // .GroupBy(ph => ph.Trim())
@@ -35,25 +35,25 @@ namespace ArktiPhones
             var fastRun = false;
             if (!fastRun)
             {
-                var remodeledPhones = new List<PhoneDetails>(); //inputPhonesProcessed.Select(p => new ValuesExtractor(p).resultPhone);
+                var remodeledDevices = new List<DeviceDetails>(); //inputDevicesProcessed.Select(p => new ValuesExtractor(p).resultDevice);
                 var progressCount = 0;
                 using (var progress = new ProgressBar())
                 {
-                    foreach (var phone in inputPhonesProcessed)
+                    foreach (var Device in inputDevicesProcessed)
                     {
-                        remodeledPhones.Add(new ValuesExtractor(phone).resultPhone);
-                        progress.Report((double)progressCount++ / inputPhonesProcessed.Count);
+                        remodeledDevices.Add(new ValuesExtractor(Device).resultDevice);
+                        progress.Report((double)progressCount++ / inputDevicesProcessed.Count);
                     }
                 }
-                var distinctRemodeledValuesCount = remodeledPhones
+                var distinctRemodeledValuesCount = remodeledDevices
                     .GroupBy(ph => ph.Status.CurrentStatus)
                     .OrderByDescending(p => p.Key)
                     .Select(p =>
                     {
-                        var query = from selectedPhone in p
-                                    join originalPhone in inputPhonesProcessed
-                                    on selectedPhone.Basics.PhoneId equals originalPhone.PhoneId
-                                    select originalPhone.Detail.Launch.Status;
+                        var query = from selectedDevice in p
+                                    join originalDevice in inputDevicesProcessed
+                                    on selectedDevice.Basic.GsmArenaId equals originalDevice.PhoneId
+                                    select originalDevice.Detail.Launch.Status;
                         return new
                         {
                             Key = $"{p.Key} (x{query.Count()})",
@@ -70,14 +70,21 @@ namespace ArktiPhones
                     File.Copy(Path.Combine("Results", "TestRemodeledResult.json"), Path.Combine("Results", "Archived", $"TestRemodeledResult_{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}.json"));
 
                 System.IO.File.WriteAllText(Path.Combine("Results", "CombinedUniqueResults.json"),
-                   JsonConvert.SerializeObject(inputPhonesProcessed.Where(p => p.Detail.Features?.Sensors != null).SelectMany(p => p.Detail.Features.Sensors.Split(',')).Select(p => p.Trim().ToLowerInvariant()).Distinct().OrderBy(p => p), Formatting.Indented));
+                   JsonConvert.SerializeObject(inputDevicesProcessed.Where(p => p.Detail.Features?.Sensors != null).SelectMany(p => p.Detail.Features.Sensors.Split(',')).Select(p => p.Trim().ToLowerInvariant()).Distinct().OrderBy(p => p), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "TestRemodeledResult.json"),
                     JsonConvert.SerializeObject(distinctRemodeledValuesCount, Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResults.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented));
+                    JsonConvert.SerializeObject(remodeledDevices.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented));
                 System.IO.File.WriteAllText(Path.Combine("Results", "FinalResultsWithoutNulls.json"),
-                    JsonConvert.SerializeObject(remodeledPhones.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented,
+                    JsonConvert.SerializeObject(remodeledDevices.OrderByDescending(p => p.Status.AnnouncedDate.Quarter).OrderByDescending(p => p.Status.AnnouncedDate.Month).OrderByDescending(p => p.Status.AnnouncedDate.Year), Formatting.Indented,
                       new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+
+                // var distinctRemodeledResults = remodeledDevices.SelectMany(p => p.CameraInfo.FrontCameraFeatures).ToList();
+                // distinctRemodeledResults.AddRange(remodeledDevices.SelectMany(p => p.CameraInfo.RearCameraFeatures));
+                // distinctRemodeledResults.AddRange(remodeledDevices.Where(p => p.CameraInfo.VideoFeatures != null).SelectMany(p => p.CameraInfo.VideoFeatures));
+                // distinctRemodeledResults.AddRange(remodeledDevices.SelectMany(p => p.CameraInfo.Cameras.SelectMany(c => c.Features)));
+                // System.IO.File.WriteAllText(Path.Combine("Results", "DistinctRemodeledResults.json"), JsonConvert.SerializeObject(distinctRemodeledResults));
+
             }
 
 
@@ -89,16 +96,16 @@ namespace ArktiPhones
 
             System.IO.File.WriteAllLines(Path.Combine("Results", "TestRawResult.txt"), distinctRawValuesCount.Select(p => p.Value));
 
-            // var distinctResult = inputPhonesProcessed.Select(p => p.Overview.Camera?.Photo)/* .Select(p => p?.ElementAtOrDefault(1)) */.Distinct().OrderByDescending(v => v);
+            // var distinctResult = inputDevicesProcessed.Select(p => p.Overview.Camera?.Photo)/* .Select(p => p?.ElementAtOrDefault(1)) */.Distinct().OrderByDescending(v => v);
             // System.IO.File.WriteAllLines(Path.Combine("Results", "DistinctResult.txt"), distinctResult);
             // System.IO.File.WriteAllText(Path.Combine("Results", "DistinctResult.json"),
             //     JsonConvert.SerializeObject(distinctResult, Formatting.Indented));
 
 
-            System.IO.File.WriteAllText(Path.Combine("Results", "InputPhonesProcessed.json"),
-                JsonConvert.SerializeObject(inputPhonesProcessed, Formatting.Indented));
+            System.IO.File.WriteAllText(Path.Combine("Results", "InputDevicesProcessed.json"),
+                JsonConvert.SerializeObject(inputDevicesProcessed, Formatting.Indented));
 
-            System.Console.WriteLine($"gud: {inputPhonesProcessed.Count()} devices");
+            System.Console.WriteLine($"gud: {inputDevicesProcessed.Count()} devices");
             System.Console.WriteLine($"Done in ~{(DateTime.Now - startTime):mm\\m\\:ss\\s\\:fff\\m\\s}!");
         }
     }
